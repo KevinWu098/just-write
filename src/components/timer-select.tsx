@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { tryCatch } from "@/lib/try-catch";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { createDocument } from "@/app/_actions/documents";
 
 const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 
@@ -18,17 +17,8 @@ export function TimerSelect() {
         useState<(typeof DURATIONS)[number]>(5);
 
     async function handleStart() {
-        const { data, error } = await tryCatch(
-            createDocument(selectedDuration)
-        );
-
-        if (error) {
-            console.error(error);
-            toast.error("Failed to create document");
-            return;
-        }
-
-        router.push(`/${data}`);
+        // TODO: Implement Convex mutation to create document
+        toast.error("Not yet implemented - needs Convex setup");
     }
 
     return (

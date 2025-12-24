@@ -2,15 +2,20 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { Document } from "@/db/schema";
 import { Button } from "@/components/ui/button";
-import { updateDocument } from "@/app/_actions/documents";
 
 import { TimerAdjust } from "./timer-adjust";
 import { TimerDisplay } from "./timer-display";
 import { WritingEditor } from "./writing-editor";
 
 export type WritingState = "idle" | "writing" | "locked";
+
+// TODO: Replace with Convex types
+type Document = {
+    id: string;
+    body: unknown;
+    timerDuration: number | null;
+};
 
 interface WritingAppProps {
     document?: Document;
@@ -47,8 +52,8 @@ export function WritingApp({ document }: WritingAppProps) {
             debounceTimerRef.current = null;
         }
         if (pendingSaveRef.current && documentRef.current) {
-            const { content, duration } = pendingSaveRef.current;
-            void updateDocument(documentRef.current.id, content, duration);
+            // TODO: Implement Convex mutation
+            // const { content, duration } = pendingSaveRef.current;
             pendingSaveRef.current = null;
         }
     }, []);
@@ -106,7 +111,7 @@ export function WritingApp({ document }: WritingAppProps) {
                 pendingSaveRef.current = { content, duration };
                 // Set new timer (debounce for 1 second)
                 debounceTimerRef.current = setTimeout(() => {
-                    void updateDocument(document.id, content, duration);
+                    // TODO: Implement Convex mutation
                     pendingSaveRef.current = null;
                     debounceTimerRef.current = null;
                 }, 1000);
@@ -122,7 +127,7 @@ export function WritingApp({ document }: WritingAppProps) {
             // Flush any pending saves and save duration immediately
             flushPendingSave();
             if (document) {
-                void updateDocument(document.id, editorContent, newDuration);
+                // TODO: Implement Convex mutation
             }
         },
         [document, editorContent, flushPendingSave]
