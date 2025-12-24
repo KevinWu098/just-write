@@ -1,4 +1,6 @@
-import { db } from "@/db";
+"use client";
+
+import { initializeDB } from "@/db";
 import { eq } from "drizzle-orm";
 
 import { document, type Document } from "@/db/schema";
@@ -6,6 +8,8 @@ import { document, type Document } from "@/db/schema";
 export async function createDocument(
     timerDuration: number | null = 5
 ): Promise<string> {
+    const db = await initializeDB();
+
     const [newDocument] = await db
         .insert(document)
         .values({
@@ -23,6 +27,8 @@ export async function createDocument(
 }
 
 export async function getDocument(id: string): Promise<Document | undefined> {
+    const db = await initializeDB();
+
     const [doc] = await db
         .select()
         .from(document)
@@ -37,6 +43,8 @@ export async function updateDocument(
     body: unknown,
     timerDuration: number | null
 ): Promise<void> {
+    const db = await initializeDB();
+
     await db
         .update(document)
         .set({

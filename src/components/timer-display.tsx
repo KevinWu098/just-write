@@ -8,12 +8,14 @@ interface TimerDisplayProps {
     duration: number | null;
     isRunning: boolean;
     onTimerEnd: () => void;
+    onTimeUpdate?: (timeInSeconds: number) => void;
 }
 
 export function TimerDisplay({
     duration,
     isRunning,
     onTimerEnd,
+    onTimeUpdate,
 }: TimerDisplayProps) {
     const [timeLeft, setTimeLeft] = useState(duration ? duration * 60 : 0);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -87,21 +89,27 @@ export function TimerDisplay({
                 // Timed mode: count down
                 setTimeLeft((prev) => {
                     if (prev <= 1) {
-                        if (intervalRef.current)
+                        if (intervalRef.current) {
                             clearInterval(intervalRef.current);
+                        }
                         setHasEnded(true);
                         onTimerEnd();
                         return 0;
                     }
-                    return prev - 1;
+                    const newTime = prev - 1;
+                    // Update parent with remaining time in seconds
+                    onTimeUpdate?.(newTime);
+                    return newTime;
                 });
             }
         }, 1000);
 
         return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
         };
-    }, [isRunning, hasEnded, isPaused, onTimerEnd, duration]);
+    }, [isRunning, hasEnded, isPaused, onTimerEnd, duration, onTimeUpdate]);
 
     if (duration === null) {
         const minutes = Math.floor(elapsedTime / 60);

@@ -4,7 +4,6 @@ import { memo, useEffect } from "react";
 
 import { Strike } from "@tiptap/extension-strike";
 import Typography from "@tiptap/extension-typography";
-import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
@@ -51,7 +50,6 @@ export const WritingEditor = memo(function WritingEditor({
                     };
                 },
             }),
-            Underline,
             Typography.configure({
                 oneHalf: false,
                 oneQuarter: false,

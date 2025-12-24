@@ -23,38 +23,9 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
-    if (isLocked) return null;
-
-    const ToolbarButton = ({
-        onClick,
-        isActive,
-        icon: Icon,
-        label,
-        shortcut,
-    }: {
-        onClick: () => void;
-        isActive: boolean;
-        icon: React.ComponentType<{ className?: string }>;
-        label: string;
-        shortcut?: string;
-    }) => (
-        <Button
-            type="button"
-            onClick={onClick}
-            disabled={isLocked}
-            className={cn(
-                "rounded-md p-2 transition-colors",
-                "hover:bg-muted",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-                isActive && "bg-muted text-foreground",
-                !isActive && "text-muted-foreground"
-            )}
-            aria-label={label}
-            title={shortcut ? `${label} (${shortcut})` : label}
-        >
-            <Icon className="h-4 w-4" />
-        </Button>
-    );
+    if (isLocked) {
+        return null;
+    }
 
     return (
         <div className="border-border bg-background/80 w-full border-b backdrop-blur-sm">
@@ -62,6 +33,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     isActive={editor.isActive("bold")}
+                    isLocked={isLocked}
                     icon={Bold}
                     label="Bold"
                     shortcut="⌘B"
@@ -69,6 +41,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     isActive={editor.isActive("italic")}
+                    isLocked={isLocked}
                     icon={Italic}
                     label="Italic"
                     shortcut="⌘I"
@@ -78,6 +51,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                         editor.chain().focus().toggleUnderline().run()
                     }
                     isActive={editor.isActive("underline")}
+                    isLocked={isLocked}
                     icon={Underline}
                     label="Underline"
                     shortcut="⌘U"
@@ -85,6 +59,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     isActive={editor.isActive("strike")}
+                    isLocked={isLocked}
                     icon={Strikethrough}
                     label="Strikethrough"
                     shortcut="⌘⇧S"
@@ -95,6 +70,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                         editor.chain().focus().toggleHeading({ level: 1 }).run()
                     }
                     isActive={editor.isActive("heading", { level: 1 })}
+                    isLocked={isLocked}
                     icon={Heading1}
                     label="Heading 1"
                     shortcut="⌘⌥1"
@@ -104,6 +80,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                         editor.chain().focus().toggleHeading({ level: 2 }).run()
                     }
                     isActive={editor.isActive("heading", { level: 2 })}
+                    isLocked={isLocked}
                     icon={Heading2}
                     label="Heading 2"
                     shortcut="⌘⌥2"
@@ -113,6 +90,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                         editor.chain().focus().toggleHeading({ level: 3 }).run()
                     }
                     isActive={editor.isActive("heading", { level: 3 })}
+                    isLocked={isLocked}
                     icon={Heading3}
                     label="Heading 3"
                     shortcut="⌘⌥3"
@@ -123,6 +101,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
                         editor.chain().focus().toggleBulletList().run()
                     }
                     isActive={editor.isActive("bulletList")}
+                    isLocked={isLocked}
                     icon={List}
                     label="Bullet List"
                     shortcut="⌘⇧8"
@@ -131,3 +110,36 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
         </div>
     );
 }
+
+const ToolbarButton = ({
+    onClick,
+    isActive,
+    isLocked,
+    icon: Icon,
+    label,
+    shortcut,
+}: {
+    onClick: () => void;
+    isActive: boolean;
+    isLocked: boolean;
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    shortcut?: string;
+}) => (
+    <Button
+        type="button"
+        onClick={onClick}
+        disabled={isLocked}
+        className={cn(
+            "rounded-md p-2 transition-colors",
+            "hover:bg-muted",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            isActive && "bg-muted text-foreground",
+            !isActive && "text-muted-foreground"
+        )}
+        aria-label={label}
+        title={shortcut ? `${label} (${shortcut})` : label}
+    >
+        <Icon className="h-4 w-4" />
+    </Button>
+);
