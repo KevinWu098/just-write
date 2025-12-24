@@ -1,0 +1,175 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Softer, creamier palette with reduced chroma for a gentler look */
+  --background: oklch(0.98 0.008 85);
+  --foreground: oklch(0.3 0.015 60);
+  --card: oklch(0.99 0.005 85);
+  --card-foreground: oklch(0.3 0.015 60);
+  --popover: oklch(0.99 0.005 85);
+  --popover-foreground: oklch(0.3 0.015 60);
+  --primary: oklch(0.4 0.025 60);
+  --primary-foreground: oklch(0.98 0.008 85);
+  --secondary: oklch(0.96 0.01 85);
+  --secondary-foreground: oklch(0.4 0.025 60);
+  --muted: oklch(0.94 0.012 85);
+  --muted-foreground: oklch(0.55 0.015 60);
+  --accent: oklch(0.6 0.04 145);
+  --accent-foreground: oklch(0.98 0.008 85);
+  --destructive: oklch(0.55 0.12 25);
+  --destructive-foreground: oklch(0.98 0.008 85);
+  --border: oklch(0.9 0.015 85);
+  --input: oklch(0.94 0.01 85);
+  --ring: oklch(0.6 0.04 145);
+  --chart-1: oklch(0.65 0.12 41);
+  --chart-2: oklch(0.6 0.08 185);
+  --chart-3: oklch(0.4 0.04 227);
+  --chart-4: oklch(0.83 0.1 84);
+  --chart-5: oklch(0.77 0.1 70);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+@theme inline {
+  --font-sans: "Instrument Sans", "Instrument Sans Fallback";
+  --font-serif: "Instrument Serif", "Instrument Serif Fallback";
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Added Tiptap ProseMirror editor styles for proper heading and list rendering */
+  .ProseMirror {
+    @apply outline-none min-h-full;
+  }
+
+  .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply text-muted-foreground/50 float-left h-0 pointer-events-none;
+  }
+
+  .ProseMirror h1 {
+    @apply font-serif text-4xl md:text-5xl font-normal mt-8 mb-4 text-foreground leading-tight;
+  }
+
+  .ProseMirror h2 {
+    @apply font-serif text-3xl md:text-4xl font-normal mt-6 mb-3 text-foreground leading-tight;
+  }
+
+  .ProseMirror h3 {
+    @apply font-serif text-2xl md:text-3xl font-normal mt-5 mb-2 text-foreground leading-snug;
+  }
+
+  .ProseMirror p {
+    @apply my-3 text-foreground;
+  }
+
+  .ProseMirror ul {
+    @apply my-4 pl-6 list-disc text-foreground;
+  }
+
+  .ProseMirror ol {
+    @apply my-4 pl-6 list-decimal text-foreground;
+  }
+
+  .ProseMirror li {
+    @apply my-1.5;
+  }
+
+  .ProseMirror li p {
+    @apply my-0;
+  }
+
+  .ProseMirror blockquote {
+    @apply border-l-4 border-accent pl-4 italic font-serif my-4 text-muted-foreground;
+  }
+
+  .ProseMirror a {
+    @apply text-accent underline hover:text-accent/80 transition-colors;
+  }
+
+  .ProseMirror strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .ProseMirror em {
+    @apply italic;
+  }
+
+  .ProseMirror s {
+    @apply line-through text-muted-foreground;
+  }
+
+  .ProseMirror code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .ProseMirror pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  .ProseMirror pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .ProseMirror hr {
+    @apply border-border my-8;
+  }
+
+  /* Prose content fallback */
+  .prose-content {
+    @apply max-w-none;
+  }
+}
