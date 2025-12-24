@@ -122,7 +122,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className={`font-sans antialiased`}>{children}</body>
+            <body className={`root font-sans antialiased`}>{children}</body>
         </html>
     );
 }

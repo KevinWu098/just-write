@@ -9,6 +9,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "@base-ui/react": "^1.0.0",
         "@hookform/resolvers": "^3.10.0",
         "@radix-ui/react-accordion": "1.2.2",
         "@radix-ui/react-alert-dialog": "1.1.4",
@@ -75,6 +76,8 @@
         "@types/node": "^22",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "eslint": "^9.39.2",
+        "eslint-config-next": "^16.1.1",
         "postcss": "^8.5",
         "prettier": "^3.7.4",
         "prettier-plugin-tailwindcss": "^0.7.2",

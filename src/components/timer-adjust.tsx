@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Check, Infinity, Plus, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -55,18 +56,18 @@ export function TimerAdjust({
                         Switch to unlimited writing? Your timer will stop.
                     </p>
                     <div className="flex items-center justify-center gap-3">
-                        <button
+                        <Button
                             onClick={confirmUnlimited}
                             className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg px-6 py-2 font-medium transition-colors"
                         >
                             Continue Unlimited
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={() => setShowUnlimitedConfirm(false)}
                             className="text-muted-foreground hover:text-foreground px-6 py-2 transition-colors"
                         >
                             Cancel
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -82,7 +83,7 @@ export function TimerAdjust({
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2">
                         {TIME_OPTIONS.map((minutes) => (
-                            <button
+                            <Button
                                 key={minutes}
                                 onClick={() => handleAddTime(minutes)}
                                 className="bg-background border-border hover:border-accent hover:bg-accent/5 flex items-center gap-2 rounded-lg border px-4 py-2 transition-all"
@@ -91,7 +92,7 @@ export function TimerAdjust({
                                 <span className="font-mono text-sm">
                                     {minutes} min
                                 </span>
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
@@ -111,7 +112,7 @@ export function TimerAdjust({
             <div className="space-y-3">
                 <div className="flex flex-wrap items-center justify-center gap-2">
                     {TIME_OPTIONS.map((minutes) => (
-                        <button
+                        <Button
                             key={minutes}
                             onClick={() => setSelectedDuration(minutes)}
                             className={cn(
@@ -122,9 +123,9 @@ export function TimerAdjust({
                             )}
                         >
                             {minutes} min
-                        </button>
+                        </Button>
                     ))}
-                    <button
+                    <Button
                         onClick={() => setSelectedDuration(null)}
                         className={cn(
                             "flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm transition-all",
@@ -135,24 +136,24 @@ export function TimerAdjust({
                     >
                         <Infinity className="h-4 w-4" />
                         <span className="font-mono">Unlimited</span>
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="flex items-center justify-center gap-3 pt-2">
-                    <button
+                    <Button
                         onClick={handleSwitch}
                         className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center gap-2 rounded-lg px-6 py-2 font-medium transition-colors"
                     >
                         <Check className="h-4 w-4" />
                         Switch
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={onCancel}
                         className="text-muted-foreground hover:text-foreground flex items-center gap-2 px-6 py-2 transition-colors"
                     >
                         <X className="h-4 w-4" />
                         Cancel
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+
 import { TimerAdjust } from "./timer-adjust";
 import { TimerDisplay } from "./timer-display";
 import { TimerSelect } from "./timer-select";
@@ -76,7 +78,7 @@ export function WritingApp() {
                                 {wordCount} {wordCount === 1 ? "word" : "words"}
                             </span>
                             {state === "writing" && (
-                                <button
+                                <Button
                                     onClick={() =>
                                         setShowTimerAdjust(!showTimerAdjust)
                                     }
@@ -88,15 +90,15 @@ export function WritingApp() {
                                     {duration === null
                                         ? "End Session"
                                         : "Adjust Time"}
-                                </button>
+                                </Button>
                             )}
                             {isLocked && (
-                                <button
+                                <Button
                                     onClick={handleReset}
                                     className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
                                 >
                                     New Session
-                                </button>
+                                </Button>
                             )}
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface TimerSelectProps {
     selectedDuration: number | null;
@@ -23,7 +24,7 @@ export function TimerSelect({
                 </label>
                 <div className="flex flex-wrap justify-center gap-2">
                     {DURATIONS.map((duration) => (
-                        <button
+                        <Button
                             key={duration ?? "unlimited"}
                             onClick={() => onSelectDuration(duration)}
                             className={cn(
@@ -35,28 +36,28 @@ export function TimerSelect({
                             )}
                         >
                             {duration ?? "∞"}
-                        </button>
+                        </Button>
                     ))}
                 </div>
+
+                <p
+                    className={cn(
+                        "text-muted-foreground text-center text-sm",
+                        selectedDuration === null
+                            ? "opacity-100"
+                            : "pointer-events-auto opacity-0"
+                    )}
+                >
+                    Unlimited mode won't lock your writing.
+                </p>
             </div>
 
-            <p
-                className={cn(
-                    "text-muted-foreground text-center text-sm",
-                    selectedDuration === null
-                        ? "opacity-100"
-                        : "pointer-events-auto opacity-0"
-                )}
-            >
-                Unlimited mode won't lock your writing.
-            </p>
-
-            <button
+            <Button
                 onClick={onStart}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors"
             >
                 Begin
-            </button>
+            </Button>
         </div>
     );
 }

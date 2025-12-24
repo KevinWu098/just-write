@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface EditorToolbarProps {
     editor: Editor;
@@ -37,7 +38,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
         label: string;
         shortcut?: string;
     }) => (
-        <button
+        <Button
             type="button"
             onClick={onClick}
             disabled={isLocked}
@@ -52,7 +53,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
             title={shortcut ? `${label} (${shortcut})` : label}
         >
             <Icon className="h-4 w-4" />
-        </button>
+        </Button>
     );
 
     return (
