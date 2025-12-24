@@ -1,21 +1,36 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { toast } from "sonner";
+
+import { tryCatch } from "@/lib/try-catch";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { createDocument } from "@/app/_actions/documents";
 
-interface TimerSelectProps {
-    selectedDuration: number | null;
-    onSelectDuration: (duration: number | null) => void;
-    onStart: () => void;
-}
+const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 
-const DURATIONS: (number | null)[] = [5, 10, 15, 20, 30, null];
+export function TimerSelect() {
+    const router = useRouter();
+    const [selectedDuration, setSelectedDuration] =
+        useState<(typeof DURATIONS)[number]>(5);
 
-export function TimerSelect({
-    selectedDuration,
-    onSelectDuration,
-    onStart,
-}: TimerSelectProps) {
+    async function handleStart() {
+        const { data, error } = await tryCatch(
+            createDocument(selectedDuration)
+        );
+
+        if (error) {
+            console.error(error);
+            toast.error("Failed to create document");
+            return;
+        }
+
+        router.push(`/${data}`);
+    }
+
     return (
         <div className="space-y-6">
             <div className="space-y-3">
@@ -26,7 +41,7 @@ export function TimerSelect({
                     {DURATIONS.map((duration) => (
                         <Button
                             key={duration ?? "unlimited"}
-                            onClick={() => onSelectDuration(duration)}
+                            onClick={() => setSelectedDuration(duration)}
                             className={cn(
                                 "h-14 w-14 rounded-lg text-lg font-medium transition-all duration-200 hover:duration-0",
                                 "border-border hover:border-accent/50 border",
@@ -48,12 +63,12 @@ export function TimerSelect({
                             : "pointer-events-auto opacity-0"
                     )}
                 >
-                    Unlimited mode won't lock your writing.
+                    {"Unlimited mode won't lock your writing."}
                 </p>
             </div>
 
             <Button
-                onClick={onStart}
+                onClick={handleStart}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors"
             >
                 Begin

@@ -14,11 +14,13 @@ import { EditorToolbar } from "./editor-toolbar";
 
 interface WritingEditorProps {
     isLocked: boolean;
-    onContentChange: (content: string, wordCount: number) => void;
+    initialContent?: unknown;
+    onContentChange: (content: unknown, wordCount: number) => void;
 }
 
 export const WritingEditor = memo(function WritingEditor({
     isLocked,
+    initialContent,
     onContentChange,
 }: WritingEditorProps) {
     const editor = useEditor({
@@ -54,17 +56,17 @@ export const WritingEditor = memo(function WritingEditor({
                 oneHalf: false,
                 oneQuarter: false,
                 threeQuarters: false,
-                emDash: true,
-                ellipsis: true,
-                openDoubleQuote: true,
-                closeDoubleQuote: true,
-                openSingleQuote: true,
-                closeSingleQuote: true,
-                leftArrow: true,
-                rightArrow: true,
+                emDash: "—",
+                ellipsis: "…",
+                openDoubleQuote: '"',
+                closeDoubleQuote: '"',
+                openSingleQuote: "'",
+                closeSingleQuote: "'",
+                leftArrow: "←",
+                rightArrow: "→",
             }),
         ],
-        content: "",
+        content: initialContent ?? "",
         editorProps: {
             attributes: {
                 class: "outline-none min-h-full text-lg md:text-xl leading-relaxed",
@@ -76,11 +78,19 @@ export const WritingEditor = memo(function WritingEditor({
             editor.commands.focus("end");
         },
         onUpdate: ({ editor }) => {
+            const json = editor.getJSON();
             const text = editor.getText();
             const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-            onContentChange(text, wordCount);
+            onContentChange(json, wordCount);
         },
     });
+
+    // Cleanup editor on unmount
+    useEffect(() => {
+        return () => {
+            editor?.destroy();
+        };
+    }, [editor]);
 
     useEffect(() => {
         if (editor) {
@@ -119,10 +129,18 @@ export const WritingEditor = memo(function WritingEditor({
                     isLocked={isLocked}
                 />
             </div>
-            <div className="mx-auto w-full max-w-3xl flex-1 p-4 md:p-6 lg:p-8">
+            <div
+                className="mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8"
+                onClick={() => {
+                    if (!isLocked) {
+                        editor.commands.focus();
+                    }
+                }}
+            >
                 <EditorContent
                     editor={editor}
                     className={cn(
+                        "min-h-full",
                         isLocked && "cursor-not-allowed opacity-75 select-none"
                     )}
                     style={{

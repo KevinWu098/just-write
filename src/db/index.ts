@@ -6,7 +6,7 @@ import migrations from "@/db/migrations/export.json";
 import * as schema from "@/db/schema";
 import { env } from "@/env";
 
-const IS_PRODUCTION = env.NODE_ENV === "production";
+const IS_PRODUCTION = env.NEXT_PUBLIC_NODE_ENV === "production";
 const DB_NAME = IS_PRODUCTION ? "just-write" : "just-write-dev";
 
 const client = await PGlite.create({
