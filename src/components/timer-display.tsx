@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 interface TimerDisplayProps {
     duration: number | null;
+    startedAt: number | null;
     isRunning: boolean;
     onTimerEnd: () => void;
     onTimeUpdate?: (timeInSeconds: number) => void;
@@ -13,6 +14,7 @@ interface TimerDisplayProps {
 
 export function TimerDisplay({
     duration,
+    startedAt,
     isRunning,
     onTimerEnd,
     onTimeUpdate,
@@ -20,87 +22,86 @@ export function TimerDisplay({
     const [timeLeft, setTimeLeft] = useState(duration ? duration * 60 : 0);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [hasEnded, setHasEnded] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const [isResuming, setIsResuming] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const localStartTimeRef = useRef<number | null>(null);
 
-    useEffect(() => {
-        if (duration !== null) {
-            setTimeLeft(duration * 60);
-            setHasEnded(false);
-        } else {
-            setElapsedTime(0);
-            setHasEnded(false);
-        }
-    }, [duration]);
+    // Calculate current time based on startedAt (or local start time)
+    const calculateCurrentTime = useCallback(() => {
+        // Use server time if available, otherwise use local start time
+        const effectiveStartTime = startedAt || localStartTimeRef.current;
 
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                setIsPaused(true);
-            } else {
-                setIsPaused(false);
-                setIsResuming(true);
-                setTimeout(() => {
-                    setIsResuming(false);
-                }, 1000);
+        if (!effectiveStartTime) {
+            // Timer hasn't started yet
+            if (duration !== null) {
+                return { timeLeft: duration * 60, elapsedTime: 0 };
             }
-        };
+            return { timeLeft: 0, elapsedTime: 0 };
+        }
 
-        const handleBlur = () => {
-            setIsPaused(true);
-        };
+        const elapsed = Math.floor((Date.now() - effectiveStartTime) / 1000);
 
-        const handleFocus = () => {
-            setIsPaused(false);
-            setIsResuming(true);
-            setTimeout(() => {
-                setIsResuming(false);
-            }, 1000);
-        };
+        if (duration === null) {
+            // Infinite timer - count up
+            return { timeLeft: 0, elapsedTime: elapsed };
+        } else {
+            // Timed mode - count down
+            const totalSeconds = duration * 60;
+            const remaining = Math.max(0, totalSeconds - elapsed);
+            return { timeLeft: remaining, elapsedTime: elapsed };
+        }
+    }, [startedAt, duration]);
 
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        window.addEventListener("blur", handleBlur);
-        window.addEventListener("focus", handleFocus);
-
-        return () => {
-            document.removeEventListener(
-                "visibilitychange",
-                handleVisibilityChange
-            );
-            window.removeEventListener("blur", handleBlur);
-            window.removeEventListener("focus", handleFocus);
-        };
-    }, []);
+    // Initialize and update time based on startedAt
+    useEffect(() => {
+        const { timeLeft: newTimeLeft, elapsedTime: newElapsedTime } =
+            calculateCurrentTime();
+        setTimeLeft(newTimeLeft);
+        setElapsedTime(newElapsedTime);
+        setHasEnded(
+            newTimeLeft === 0 && duration !== null && startedAt !== null
+        );
+    }, [startedAt, duration, calculateCurrentTime]);
 
     useEffect(() => {
-        if (!isRunning || hasEnded || isPaused) {
+        if (!isRunning || hasEnded) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            localStartTimeRef.current = null; // Reset local start time
             return;
         }
 
+        // Set local start time if not set and server time not available
+        if (!startedAt && !localStartTimeRef.current) {
+            localStartTimeRef.current = Date.now();
+        }
+
+        // Clear local start time if server time is available
+        if (startedAt && localStartTimeRef.current) {
+            localStartTimeRef.current = null;
+        }
+
+        // Update every second based on elapsed time from startedAt
         intervalRef.current = setInterval(() => {
+            const { timeLeft: newTimeLeft, elapsedTime: newElapsedTime } =
+                calculateCurrentTime();
+
             if (duration === null) {
-                setElapsedTime((prev) => prev + 1);
+                setElapsedTime(newElapsedTime);
             } else {
-                // Timed mode: count down
-                setTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        if (intervalRef.current) {
-                            clearInterval(intervalRef.current);
-                        }
-                        setHasEnded(true);
-                        onTimerEnd();
-                        return 0;
+                setTimeLeft(newTimeLeft);
+
+                if (newTimeLeft <= 0 && !hasEnded) {
+                    if (intervalRef.current) {
+                        clearInterval(intervalRef.current);
                     }
-                    const newTime = prev - 1;
-                    // Update parent with remaining time in seconds
-                    onTimeUpdate?.(newTime);
-                    return newTime;
-                });
+                    setHasEnded(true);
+                    onTimerEnd();
+                }
+
+                // Update parent with remaining time in seconds
+                onTimeUpdate?.(newTimeLeft);
             }
         }, 1000);
 
@@ -109,7 +110,15 @@ export function TimerDisplay({
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isRunning, hasEnded, isPaused, onTimerEnd, duration, onTimeUpdate]);
+    }, [
+        isRunning,
+        hasEnded,
+        startedAt,
+        duration,
+        onTimerEnd,
+        onTimeUpdate,
+        calculateCurrentTime,
+    ]);
 
     if (duration === null) {
         const minutes = Math.floor(elapsedTime / 60);
@@ -136,10 +145,7 @@ export function TimerDisplay({
         <div className="flex items-center gap-3">
             <div className={cn("relative h-10 w-10")}>
                 <svg
-                    className={cn(
-                        "h-10 w-10 -rotate-90 transition-all ease-in-out",
-                        isResuming ? "duration-1000" : "duration-1000"
-                    )}
+                    className="h-10 w-10 -rotate-90 transition-all duration-1000 ease-in-out"
                     viewBox="0 0 36 36"
                 >
                     <circle
@@ -156,8 +162,7 @@ export function TimerDisplay({
                         r="16"
                         fill="none"
                         className={cn(
-                            "transition-all ease-in-out",
-                            isResuming ? "duration-1000" : "duration-1000",
+                            "transition-all duration-1000 ease-in-out",
                             isLow ? "stroke-destructive" : "stroke-accent"
                         )}
                         strokeWidth="2"
@@ -165,17 +170,6 @@ export function TimerDisplay({
                         strokeLinecap="round"
                     />
                 </svg>
-                <div
-                    className={cn(
-                        "absolute inset-0 flex items-center justify-center transition-opacity ease-in-out",
-                        isPaused
-                            ? "opacity-100 duration-0"
-                            : "opacity-0 duration-1000"
-                    )}
-                >
-                    <div className="bg-accent mr-0.5 h-3 w-1 rounded-sm" />
-                    <div className="bg-accent h-3 w-1 rounded-sm" />
-                </div>
             </div>
             <span
                 className={cn(

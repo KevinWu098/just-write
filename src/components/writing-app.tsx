@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { useMutation } from "convex/react";
+import { ArrowLeftIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TimerAdjust } from "@/components/timer-adjust";
 import { TimerDisplay } from "@/components/timer-display";
-import { editorExtensions, WritingEditor } from "@/components/writing-editor";
+import { WritingEditor } from "@/components/writing-editor";
 
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -18,6 +20,7 @@ export type WritingState = "idle" | "writing" | "locked";
 type Writing = {
     _id: Id<"writings">;
     timerDuration: number | null;
+    timerStartedAt: number | null;
     createdBy: string;
     updatedAt: number;
     _creationTime: number;
@@ -30,14 +33,23 @@ interface WritingAppProps {
 
 export function WritingApp({ document, id }: WritingAppProps) {
     const updateTimer = useMutation(api.writing.updateTimer);
+    const startTimer = useMutation(api.writing.startTimer);
     const sync = useTiptapSync(api.writing, id);
-    const [state, setState] = useState<WritingState>("idle");
+    // Start in "writing" state immediately
+    const [state, setState] = useState<WritingState>("writing");
     const [duration, setDuration] = useState<number | null>(
         document?.timerDuration ?? 5
     );
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
     const [editor, setEditor] = useState<any>(null);
+
+    // Start the timer immediately when document loads
+    useEffect(() => {
+        if (document && !document.timerStartedAt) {
+            void startTimer({ id: document._id });
+        }
+    }, [document, startTimer]);
 
     // Update duration when document changes
     useEffect(() => {
@@ -53,9 +65,6 @@ export function WritingApp({ document, id }: WritingAppProps) {
                 const text = editor.getText();
                 const count = text.trim() ? text.trim().split(/\s+/).length : 0;
                 setWordCount(count);
-                if (count > 0 && state === "idle") {
-                    setState("writing");
-                }
             };
 
             // Initial word count
@@ -67,15 +76,15 @@ export function WritingApp({ document, id }: WritingAppProps) {
                 editor.off("update", updateWordCount);
             };
         }
-    }, [editor, state]);
+    }, [editor]);
 
     const handleTimerEnd = useCallback(() => {
         setState("locked");
     }, []);
 
     const handleReset = useCallback(() => {
-        setState("idle");
-        setWordCount(0);
+        // Navigate to home to start a new session
+        window.location.href = "/";
     }, []);
 
     const handleChangeDuration = useCallback(
@@ -129,11 +138,21 @@ export function WritingApp({ document, id }: WritingAppProps) {
             <div className="flex flex-1 flex-col">
                 <header className="bg-background/80 border-border sticky top-0 z-10 border-b backdrop-blur-sm">
                     <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
-                        <TimerDisplay
-                            duration={duration}
-                            isRunning={state === "writing"}
-                            onTimerEnd={handleTimerEnd}
-                        />
+                        <div className="flex items-center gap-4">
+                            <Link
+                                href="/writings"
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                title="Back to all writings"
+                            >
+                                <ArrowLeftIcon className="h-5 w-5" />
+                            </Link>
+                            <TimerDisplay
+                                duration={duration}
+                                startedAt={document?.timerStartedAt ?? null}
+                                isRunning={state === "writing"}
+                                onTimerEnd={handleTimerEnd}
+                            />
+                        </div>
                         <div className="flex items-center gap-4">
                             <span className="text-muted-foreground text-sm tabular-nums">
                                 {wordCount} {wordCount === 1 ? "word" : "words"}

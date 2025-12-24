@@ -27,6 +27,7 @@ export const create = mutation({
     handler: async (ctx, args) => {
         const writingId = await ctx.db.insert("writings", {
             timerDuration: args.timerDuration ?? 5,
+            timerStartedAt: null, // Timer hasn't started yet
             createdBy: "anonymous", // TODO: Add auth later
             updatedAt: Date.now(),
         });
@@ -64,6 +65,19 @@ export const list = query({
     },
 });
 
+// Start the timer
+export const startTimer = mutation({
+    args: {
+        id: v.id("writings"),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.id, {
+            timerStartedAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+    },
+});
+
 // Update timer duration
 export const updateTimer = mutation({
     args: {
@@ -71,9 +85,43 @@ export const updateTimer = mutation({
         timerDuration: v.union(v.number(), v.null()),
     },
     handler: async (ctx, args) => {
+        const writing = await ctx.db.get(args.id);
+        if (!writing) return;
+
+        // If timer is running, calculate elapsed time and adjust start time
+        let newStartTime = writing.timerStartedAt;
+        if (writing.timerStartedAt && writing.timerDuration !== null) {
+            const elapsed = Date.now() - writing.timerStartedAt;
+            const oldTotalMs = writing.timerDuration * 60 * 1000;
+            const newTotalMs = (args.timerDuration ?? 0) * 60 * 1000;
+            // Adjust start time to maintain the same remaining time percentage
+            newStartTime = Date.now() - (elapsed * newTotalMs) / oldTotalMs;
+        }
+
         await ctx.db.patch(args.id, {
             timerDuration: args.timerDuration,
+            timerStartedAt: newStartTime,
             updatedAt: Date.now(),
         });
+    },
+});
+
+// Migration: Fix existing writings that are missing timerStartedAt
+export const migrateWritings = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const writings = await ctx.db.query("writings").collect();
+        let fixed = 0;
+
+        for (const writing of writings) {
+            if (writing.timerStartedAt === undefined) {
+                await ctx.db.patch(writing._id, {
+                    timerStartedAt: null,
+                });
+                fixed++;
+            }
+        }
+
+        return { fixed, total: writings.length };
     },
 });

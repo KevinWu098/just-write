@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useMutation } from "convex/react";
@@ -67,12 +68,20 @@ export function TimerSelect() {
                 </p>
             </div>
 
-            <Button
-                onClick={handleStart}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors"
-            >
-                Begin
-            </Button>
+            <div className="space-y-3">
+                <Button
+                    onClick={handleStart}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors"
+                >
+                    Begin
+                </Button>
+
+                <Link href="/writings">
+                    <Button className="text-muted-foreground w-full text-sm font-medium hover:underline">
+                        View previous writings
+                    </Button>
+                </Link>
+            </div>
         </div>
     );
 }
