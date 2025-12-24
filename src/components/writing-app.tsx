@@ -12,8 +12,8 @@ import { TimerAdjust } from "@/components/timer-adjust";
 import { TimerDisplay } from "@/components/timer-display";
 import { WritingEditor } from "@/components/writing-editor";
 
-import { api } from "../../convex/_generated/api";
-import type { Id } from "../../convex/_generated/dataModel";
+import { api } from "convex/_generated/api";
+import type { Id } from "convex/_generated/dataModel";
 
 export type WritingState = "idle" | "writing" | "locked";
 

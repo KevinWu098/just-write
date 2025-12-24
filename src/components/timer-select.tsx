@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-import { api } from "../../convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 

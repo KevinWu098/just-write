@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { ChevronRightIcon } from "lucide-react";
 
-import { api } from "../../../convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 export function WritingsList() {
     const writings = useQuery(api.writing.list);
