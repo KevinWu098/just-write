@@ -9,9 +9,11 @@ import {
 import "./globals.css";
 import "core-js/actual/iterator";
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
-import { ConvexClientProvider } from "@/app/convex-context-provider";
+import { ConvexClientProvider } from "@/app/convex-client-provider";
 
 const _instrumentSans = Instrument_Sans({ subsets: ["latin"] });
 const _instrumentSerif = Instrument_Serif({
@@ -42,12 +44,14 @@ export default function RootLayout({
         <html lang="en">
             <body className={`root font-sans antialiased`}>
                 <Providers>
-                    <ConvexClientProvider>
-                        <div className="bg-background flex flex-1 flex-col">
-                            {children}
-                        </div>
-                        <Toaster position="bottom-center" />
-                    </ConvexClientProvider>
+                    <ClerkProvider>
+                        <ConvexClientProvider>
+                            <div className="bg-background flex flex-1 flex-col">
+                                {children}
+                            </div>
+                            <Toaster position="bottom-center" />
+                        </ConvexClientProvider>
+                    </ClerkProvider>
                 </Providers>
             </body>
         </html>

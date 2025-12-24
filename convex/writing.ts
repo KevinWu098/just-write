@@ -4,10 +4,7 @@ import { v } from "convex/values";
 import { components } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
-// Initialize ProseMirror Sync component
 const prosemirrorSync = new ProsemirrorSync(components.prosemirrorSync);
-
-// Export the sync API
 export const {
     getSnapshot,
     submitSnapshot,
@@ -19,20 +16,19 @@ export const {
     // authorize: async (ctx, docId) => { ... }
 });
 
-// Create a new writing with an empty ProseMirror document
 export const create = mutation({
     args: {
         timerDuration: v.optional(v.union(v.number(), v.null())),
     },
     handler: async (ctx, args) => {
         const writingId = await ctx.db.insert("writings", {
-            timerDuration: args.timerDuration ?? 5,
-            timerStartedAt: null, // Timer hasn't started yet
+            timerDuration:
+                args.timerDuration !== undefined ? args.timerDuration : 5,
+            timerStartedAt: null,
             createdBy: "anonymous", // TODO: Add auth later
             updatedAt: Date.now(),
         });
 
-        // Initialize the ProseMirror document
         try {
             await prosemirrorSync.create(ctx, writingId, {
                 type: "doc",
@@ -47,7 +43,6 @@ export const create = mutation({
     },
 });
 
-// Get a single writing by ID (with metadata)
 export const get = query({
     args: {
         id: v.id("writings"),
@@ -57,7 +52,6 @@ export const get = query({
     },
 });
 
-// Get all writings (for future use)
 export const list = query({
     args: {},
     handler: async (ctx) => {
@@ -65,7 +59,6 @@ export const list = query({
     },
 });
 
-// Start the timer
 export const startTimer = mutation({
     args: {
         id: v.id("writings"),
@@ -78,7 +71,6 @@ export const startTimer = mutation({
     },
 });
 
-// Update timer duration
 export const updateTimer = mutation({
     args: {
         id: v.id("writings"),
@@ -103,25 +95,5 @@ export const updateTimer = mutation({
             timerStartedAt: newStartTime,
             updatedAt: Date.now(),
         });
-    },
-});
-
-// Migration: Fix existing writings that are missing timerStartedAt
-export const migrateWritings = mutation({
-    args: {},
-    handler: async (ctx) => {
-        const writings = await ctx.db.query("writings").collect();
-        let fixed = 0;
-
-        for (const writing of writings) {
-            if (writing.timerStartedAt === undefined) {
-                await ctx.db.patch(writing._id, {
-                    timerStartedAt: null,
-                });
-                fixed++;
-            }
-        }
-
-        return { fixed, total: writings.length };
     },
 });
