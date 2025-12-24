@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useQuery } from "convex/react";
@@ -9,6 +10,15 @@ import { api } from "../../../convex/_generated/api";
 
 export function WritingsList() {
     const writings = useQuery(api.writing.list);
+    const [, setNow] = useState(Date.now());
+
+    // Update every second to keep timer status fresh
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNow(Date.now());
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     if (!writings) {
         return null;
@@ -32,9 +42,17 @@ export function WritingsList() {
         <div className="space-y-3">
             {writings.map((writing) => {
                 const createdDate = new Date(writing._creationTime);
-                const isTimerRunning =
+
+                // Check if timer is actually running (started and not expired)
+                let isTimerRunning = false;
+                if (
                     writing.timerStartedAt !== null &&
-                    writing.timerDuration !== null;
+                    writing.timerDuration !== null
+                ) {
+                    const elapsed = Date.now() - writing.timerStartedAt;
+                    const totalDuration = writing.timerDuration * 60 * 1000; // Convert minutes to ms
+                    isTimerRunning = elapsed < totalDuration;
+                }
 
                 return (
                     <Link

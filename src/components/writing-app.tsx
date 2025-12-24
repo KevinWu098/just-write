@@ -27,7 +27,7 @@ type Writing = {
 };
 
 interface WritingAppProps {
-    document?: Writing;
+    document?: Writing | null;
     id: string;
 }
 
