@@ -1,40 +1,45 @@
-import type React from "react"
-import type { Metadata, Viewport } from "next"
-import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google"
-import "./globals.css"
-import "core-js/actual/iterator"
+import type React from "react";
+import type { Metadata, Viewport } from "next";
+import {
+    Instrument_Sans,
+    Instrument_Serif,
+    JetBrains_Mono,
+} from "next/font/google";
 
-const _instrumentSans = Instrument_Sans({ subsets: ["latin"] })
+import "./globals.css";
+import "core-js/actual/iterator";
+
+const _instrumentSans = Instrument_Sans({ subsets: ["latin"] });
 const _instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-})
-const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] })
+    subsets: ["latin"],
+    weight: "400",
+});
+const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Just Write",
-    generator: 'v0.app'
-}
+    title: "Just Write",
+    generator: "v0.app",
+};
 
 export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#f5f3ef",
-}
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    themeColor: "#f5f3ef",
+};
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+    return (
+        <html lang="en">
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
               // Polyfill for Iterator.prototype.toArray()
               if (typeof Iterator !== 'undefined' && !Iterator.prototype.toArray) {
                 Iterator.prototype.toArray = function() {
@@ -114,10 +119,10 @@ export default function RootLayout({
                 };
               }
             `,
-          }}
-        />
-      </head>
-      <body className={`font-sans antialiased`}>{children}</body>
-    </html>
-  )
+                    }}
+                />
+            </head>
+            <body className={`font-sans antialiased`}>{children}</body>
+        </html>
+    );
 }
