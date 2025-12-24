@@ -11,6 +11,7 @@ import "core-js/actual/iterator";
 
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
+import { ConvexClientProvider } from "@/app/convex-context-provider";
 
 const _instrumentSans = Instrument_Sans({ subsets: ["latin"] });
 const _instrumentSerif = Instrument_Serif({
@@ -41,10 +42,12 @@ export default function RootLayout({
         <html lang="en">
             <body className={`root font-sans antialiased`}>
                 <Providers>
-                    <div className="bg-background flex flex-1 flex-col">
-                        {children}
-                    </div>
-                    <Toaster position="bottom-center" />
+                    <ConvexClientProvider>
+                        <div className="bg-background flex flex-1 flex-col">
+                            {children}
+                        </div>
+                        <Toaster position="bottom-center" />
+                    </ConvexClientProvider>
                 </Providers>
             </body>
         </html>

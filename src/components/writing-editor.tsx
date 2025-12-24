@@ -4,6 +4,7 @@ import { memo, useEffect } from "react";
 
 import { Strike } from "@tiptap/extension-strike";
 import Typography from "@tiptap/extension-typography";
+import type { Editor, Extensions } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
@@ -14,56 +15,64 @@ import { EditorToolbar } from "./editor-toolbar";
 interface WritingEditorProps {
     isLocked: boolean;
     initialContent?: unknown;
-    onContentChange: (content: unknown, wordCount: number) => void;
+    onContentChange?: (content: unknown, wordCount: number) => void;
+    syncExtension?: Extensions[number];
+    onEditorReady?: (editor: Editor) => void;
 }
+
+// Export the extensions so they can be used elsewhere
+export const editorExtensions = [
+    StarterKit.configure({
+        heading: {
+            levels: [1, 2, 3],
+        },
+        bulletList: {
+            keepMarks: true,
+            keepAttributes: false,
+        },
+        orderedList: {
+            keepMarks: true,
+            keepAttributes: false,
+        },
+        strike: false,
+    }),
+    Strike.configure({
+        HTMLAttributes: {
+            class: "line-through",
+        },
+    }).extend({
+        addKeyboardShortcuts() {
+            return {
+                "Mod-Shift-s": () => this.editor.commands.toggleStrike(),
+            };
+        },
+    }),
+    Typography.configure({
+        oneHalf: false,
+        oneQuarter: false,
+        threeQuarters: false,
+        emDash: "—",
+        ellipsis: "…",
+        openDoubleQuote: '"',
+        closeDoubleQuote: '"',
+        openSingleQuote: "'",
+        closeSingleQuote: "'",
+        leftArrow: "←",
+        rightArrow: "→",
+    }),
+];
 
 export const WritingEditor = memo(function WritingEditor({
     isLocked,
     initialContent,
     onContentChange,
+    syncExtension,
+    onEditorReady,
 }: WritingEditorProps) {
     const editor = useEditor({
-        extensions: [
-            StarterKit.configure({
-                heading: {
-                    levels: [1, 2, 3],
-                },
-                bulletList: {
-                    keepMarks: true,
-                    keepAttributes: false,
-                },
-                orderedList: {
-                    keepMarks: true,
-                    keepAttributes: false,
-                },
-                strike: false,
-            }),
-            Strike.configure({
-                HTMLAttributes: {
-                    class: "line-through",
-                },
-            }).extend({
-                addKeyboardShortcuts() {
-                    return {
-                        "Mod-Shift-s": () =>
-                            this.editor.commands.toggleStrike(),
-                    };
-                },
-            }),
-            Typography.configure({
-                oneHalf: false,
-                oneQuarter: false,
-                threeQuarters: false,
-                emDash: "—",
-                ellipsis: "…",
-                openDoubleQuote: '"',
-                closeDoubleQuote: '"',
-                openSingleQuote: "'",
-                closeSingleQuote: "'",
-                leftArrow: "←",
-                rightArrow: "→",
-            }),
-        ],
+        extensions: syncExtension
+            ? [...editorExtensions, syncExtension]
+            : editorExtensions,
         content: initialContent ?? "",
         editorProps: {
             attributes: {
@@ -74,12 +83,19 @@ export const WritingEditor = memo(function WritingEditor({
         immediatelyRender: false,
         onCreate: ({ editor }) => {
             editor.commands.focus("end");
+            if (onEditorReady) {
+                onEditorReady(editor);
+            }
         },
         onUpdate: ({ editor }) => {
-            const json = editor.getJSON();
-            const text = editor.getText();
-            const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-            onContentChange(json, wordCount);
+            if (onContentChange) {
+                const json = editor.getJSON();
+                const text = editor.getText();
+                const wordCount = text.trim()
+                    ? text.trim().split(/\s+/).length
+                    : 0;
+                onContentChange(json, wordCount);
+            }
         },
     });
 

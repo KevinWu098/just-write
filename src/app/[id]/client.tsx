@@ -1,10 +1,14 @@
 "use client";
 
+import { useQuery } from "convex/react";
+
 import { WritingApp } from "@/components/writing-app";
 
-export function Client({ id }: { id: string }) {
-    // TODO: Implement Convex query to fetch document
-    const document = undefined;
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 
-    return <WritingApp document={document} />;
+export function Client({ id }: { id: string }) {
+    const writing = useQuery(api.writing.get, { id: id as Id<"writings"> });
+
+    return <WritingApp document={writing} id={id} />;
 }

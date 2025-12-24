@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useMutation } from "convex/react";
 import { toast } from "sonner";
 
-import { tryCatch } from "@/lib/try-catch";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+import { api } from "../../convex/_generated/api";
 
 const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 
@@ -15,10 +17,18 @@ export function TimerSelect() {
     const router = useRouter();
     const [selectedDuration, setSelectedDuration] =
         useState<(typeof DURATIONS)[number]>(5);
+    const createWriting = useMutation(api.writing.create);
 
     async function handleStart() {
-        // TODO: Implement Convex mutation to create document
-        toast.error("Not yet implemented - needs Convex setup");
+        try {
+            const writingId = await createWriting({
+                timerDuration: selectedDuration,
+            });
+            router.push(`/${writingId}`);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create writing");
+        }
     }
 
     return (

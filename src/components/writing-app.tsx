@@ -1,91 +1,73 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
+import { useMutation } from "convex/react";
 
 import { Button } from "@/components/ui/button";
+import { TimerAdjust } from "@/components/timer-adjust";
+import { TimerDisplay } from "@/components/timer-display";
+import { editorExtensions, WritingEditor } from "@/components/writing-editor";
 
-import { TimerAdjust } from "./timer-adjust";
-import { TimerDisplay } from "./timer-display";
-import { WritingEditor } from "./writing-editor";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 
 export type WritingState = "idle" | "writing" | "locked";
 
-// TODO: Replace with Convex types
-type Document = {
-    id: string;
-    body: unknown;
+type Writing = {
+    _id: Id<"writings">;
     timerDuration: number | null;
+    createdBy: string;
+    updatedAt: number;
+    _creationTime: number;
 };
 
 interface WritingAppProps {
-    document?: Document;
+    document?: Writing;
+    id: string;
 }
 
-export function WritingApp({ document }: WritingAppProps) {
+export function WritingApp({ document, id }: WritingAppProps) {
+    const updateTimer = useMutation(api.writing.updateTimer);
+    const sync = useTiptapSync(api.writing, id);
     const [state, setState] = useState<WritingState>("idle");
     const [duration, setDuration] = useState<number | null>(
         document?.timerDuration ?? 5
     );
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
-    const [editorContent, setEditorContent] = useState<unknown>(
-        document?.body ?? { type: "doc", content: [] }
-    );
+    const [editor, setEditor] = useState<any>(null);
 
-    // Refs to track the latest values for debounced save
-    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const pendingSaveRef = useRef<{
-        content: unknown;
-        duration: number | null;
-    } | null>(null);
-    const documentRef = useRef(document);
-
-    // Keep document ref in sync
+    // Update duration when document changes
     useEffect(() => {
-        documentRef.current = document;
-    }, [document]);
-
-    // Function to immediately flush any pending saves
-    const flushPendingSave = useCallback(() => {
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-            debounceTimerRef.current = null;
+        if (document) {
+            setDuration(document.timerDuration);
         }
-        if (pendingSaveRef.current && documentRef.current) {
-            // TODO: Implement Convex mutation
-            // const { content, duration } = pendingSaveRef.current;
-            pendingSaveRef.current = null;
-        }
-    }, []);
+    }, [document?.timerDuration]);
 
-    // Set up event listeners to save before tab closes or becomes hidden
+    // Update word count when editor content changes
     useEffect(() => {
-        const handleBeforeUnload = () => {
-            flushPendingSave();
-        };
+        if (editor) {
+            const updateWordCount = () => {
+                const text = editor.getText();
+                const count = text.trim() ? text.trim().split(/\s+/).length : 0;
+                setWordCount(count);
+                if (count > 0 && state === "idle") {
+                    setState("writing");
+                }
+            };
 
-        const handleVisibilityChange = () => {
-            if (window.document.hidden) {
-                flushPendingSave();
-            }
-        };
+            // Initial word count
+            updateWordCount();
 
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        window.document.addEventListener(
-            "visibilitychange",
-            handleVisibilityChange
-        );
-
-        // Cleanup: flush any pending saves when component unmounts
-        return () => {
-            flushPendingSave();
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-            window.document.removeEventListener(
-                "visibilitychange",
-                handleVisibilityChange
-            );
-        };
-    }, [flushPendingSave]);
+            // Listen for updates
+            editor.on("update", updateWordCount);
+            return () => {
+                editor.off("update", updateWordCount);
+            };
+        }
+    }, [editor, state]);
 
     const handleTimerEnd = useCallback(() => {
         setState("locked");
@@ -96,44 +78,51 @@ export function WritingApp({ document }: WritingAppProps) {
         setWordCount(0);
     }, []);
 
-    const handleContentChange = useCallback(
-        (content: unknown, newWordCount: number) => {
-            setState("writing");
-            setWordCount(newWordCount);
-            setEditorContent(content);
-            // Debounce save to database if we have a document
-            if (document) {
-                // Clear existing timer
-                if (debounceTimerRef.current) {
-                    clearTimeout(debounceTimerRef.current);
-                }
-                // Store pending save data
-                pendingSaveRef.current = { content, duration };
-                // Set new timer (debounce for 1 second)
-                debounceTimerRef.current = setTimeout(() => {
-                    // TODO: Implement Convex mutation
-                    pendingSaveRef.current = null;
-                    debounceTimerRef.current = null;
-                }, 1000);
-            }
-        },
-        [document, duration]
-    );
-
     const handleChangeDuration = useCallback(
         (newDuration: number | null) => {
             setDuration(newDuration);
             setShowTimerAdjust(false);
-            // Flush any pending saves and save duration immediately
-            flushPendingSave();
             if (document) {
-                // TODO: Implement Convex mutation
+                void updateTimer({
+                    id: document._id,
+                    timerDuration: newDuration,
+                });
             }
         },
-        [document, editorContent, flushPendingSave]
+        [document, updateTimer]
     );
 
     const isLocked = state === "locked" && duration !== null;
+
+    // Set editor editability based on locked state
+    useEffect(() => {
+        if (editor) {
+            editor.setEditable(!isLocked);
+        }
+    }, [editor, isLocked]);
+
+    // Handle loading state
+    if (sync.isLoading) {
+        return (
+            <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
+                <p>Loading...</p>
+            </main>
+        );
+    }
+
+    // If document doesn't exist yet, show create button
+    if (sync.initialContent === null) {
+        return (
+            <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
+                <button
+                    onClick={() => sync.create({ type: "doc", content: [] })}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2"
+                >
+                    Initialize Document
+                </button>
+            </main>
+        );
+    }
 
     return (
         <main className="bg-background flex min-h-dvh flex-col">
@@ -187,8 +176,9 @@ export function WritingApp({ document }: WritingAppProps) {
                 <div className="flex flex-1 flex-col">
                     <WritingEditor
                         isLocked={isLocked}
-                        initialContent={document?.body}
-                        onContentChange={handleContentChange}
+                        initialContent={sync.initialContent}
+                        syncExtension={sync.extension}
+                        onEditorReady={setEditor}
                     />
                 </div>
                 {isLocked && (

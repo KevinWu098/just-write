@@ -134,12 +134,7 @@ export function TimerDisplay({
 
     return (
         <div className="flex items-center gap-3">
-            <div
-                className={cn(
-                    "relative h-10 w-10",
-                    isResuming && "animate-pulse"
-                )}
-            >
+            <div className={cn("relative h-10 w-10")}>
                 <svg
                     className={cn(
                         "h-10 w-10 -rotate-90 transition-all ease-in-out",

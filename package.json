@@ -11,6 +11,7 @@
     },
     "dependencies": {
         "@base-ui/react": "^1.0.0",
+        "@convex-dev/prosemirror-sync": "^0.2.0",
         "@hookform/resolvers": "^3.10.0",
         "@radix-ui/react-accordion": "1.2.2",
         "@radix-ui/react-alert-dialog": "1.1.4",
@@ -53,6 +54,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "1.0.4",
+        "convex": "^1.31.2",
         "core-js": "^3.47.0",
         "date-fns": "4.1.0",
         "embla-carousel-react": "8.5.1",
