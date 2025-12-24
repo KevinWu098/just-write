@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
+import { api } from "convex/_generated/api";
+import type { Id } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { ArrowLeftIcon } from "lucide-react";
 
@@ -11,9 +13,6 @@ import { Button } from "@/components/ui/button";
 import { TimerAdjust } from "@/components/timer-adjust";
 import { TimerDisplay } from "@/components/timer-display";
 import { WritingEditor } from "@/components/writing-editor";
-
-import { api } from "convex/_generated/api";
-import type { Id } from "convex/_generated/dataModel";
 
 export type WritingState = "idle" | "writing" | "locked";
 
