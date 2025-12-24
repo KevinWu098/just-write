@@ -171,8 +171,12 @@ export function TimerDisplay({
                     />
                 </svg>
                 <div
-                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ease-in-out"
-                    style={{ opacity: isPaused ? 1 : 0 }}
+                    className={cn(
+                        "absolute inset-0 flex items-center justify-center transition-opacity ease-in-out",
+                        isPaused
+                            ? "opacity-100 duration-0"
+                            : "opacity-0 duration-1000"
+                    )}
                 >
                     <div className="bg-accent mr-0.5 h-3 w-1 rounded-sm" />
                     <div className="bg-accent h-3 w-1 rounded-sm" />
