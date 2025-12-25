@@ -216,15 +216,6 @@ export function WritingApp({
                         </div>
                     </div>
                 </header>
-                {showTimerAdjust && isWriting && (
-                    <div className="bg-muted/50 border-border border-b backdrop-blur-sm">
-                        <TimerAdjust
-                            currentDuration={duration}
-                            onChangeDuration={handleChangeDuration}
-                            onCancel={() => setShowTimerAdjust(false)}
-                        />
-                    </div>
-                )}
                 <div className="flex flex-1 flex-col">
                     <WritingEditor
                         isLocked={isLocked}
@@ -247,6 +238,14 @@ export function WritingApp({
                     </div>
                 )}
             </div>
+            {isWriting && (
+                <TimerAdjust
+                    open={showTimerAdjust}
+                    currentDuration={duration}
+                    onChangeDuration={handleChangeDuration}
+                    onCancel={() => setShowTimerAdjust(false)}
+                />
+            )}
         </main>
     );
 }
