@@ -53,11 +53,17 @@ export const create = mutation({
 
 export const get = query({
     args: {
-        id: v.id("writings"),
+        id: v.string(),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        const writing = await ctx.db.get(args.id);
+
+        const writingId = ctx.db.normalizeId("writings", args.id);
+        if (!writingId) {
+            return null;
+        }
+
+        const writing = await ctx.db.get(writingId);
 
         if (!writing) {
             return null;
@@ -172,7 +178,7 @@ export const updateTimer = mutation({
 
         // Determine start time based on whether we're resetting or adding time
         let newStartTime = writing.timerStartedAt;
-        
+
         if (args.resetTimer && args.timerDuration !== null) {
             // Reset: give full duration from now
             newStartTime = Date.now();
