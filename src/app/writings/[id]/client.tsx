@@ -32,7 +32,7 @@ export function Client({ id }: { id: string }) {
                         This writing is either private or does not exist.{" "}
                         <Link
                             href="/"
-                            className="hover:underline"
+                            className="text-foreground hover:underline"
                         >
                             Want to write?
                         </Link>

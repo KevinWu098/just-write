@@ -6,10 +6,13 @@ export default function Page() {
             <SignIn
                 routing="path"
                 path="/sign-in"
-                signUpUrl="/sign-up"
-                forceRedirectUrl="/"
+                fallbackRedirectUrl="/"
+                appearance={{
+                    elements: {
+                        footerAction: { display: "none" },
+                    },
+                }}
             />
         </div>
     );
 }
-

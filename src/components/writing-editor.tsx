@@ -140,7 +140,10 @@ export const WritingEditor = memo(function WritingEditor({
                 />
             </div>
             <div
-                className="mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8"
+                className={cn(
+                    "mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
+                    isLocked && "cursor-not-allowed"
+                )}
                 onClick={() => {
                     if (!isLocked) {
                         editor.commands.focus();

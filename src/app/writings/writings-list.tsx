@@ -99,7 +99,7 @@ function WritingsListContent() {
                     <Link
                         key={writing._id}
                         href={`/writings/${writing._id}`}
-                        className="border-border bg-card hover:bg-accent/50 block rounded-lg border p-6 transition-colors"
+                        className="border-border bg-card hover:bg-accent/20 block rounded-lg border p-6 transition-colors"
                     >
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 space-y-1">
