@@ -235,3 +235,28 @@ export const getShared = query({
         return writing;
     },
 });
+
+export const deleteWriting = mutation({
+    args: {
+        id: v.id("writings"),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (identity === null) {
+            throw new Error("Not authenticated");
+        }
+
+        const writing = await ctx.db.get(args.id);
+
+        if (!writing) {
+            throw new Error("Writing not found");
+        }
+
+        if (writing.createdBy !== identity.subject) {
+            throw new Error("Not authorized");
+        }
+
+        await ctx.db.delete(args.id);
+    },
+});

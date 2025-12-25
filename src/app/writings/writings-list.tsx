@@ -8,13 +8,27 @@ import type { Id } from "convex/_generated/dataModel";
 import { Authenticated, useMutation, useQuery } from "convex/react";
 import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
 function WritingsListContent() {
     const writings = useQuery(api.writing.list);
     const toggleSharing = useMutation(api.writing.toggleSharing);
+    const deleteWriting = useMutation(api.writing.deleteWriting);
     const [, setNow] = useState(Date.now());
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [writingToDelete, setWritingToDelete] =
+        useState<Id<"writings"> | null>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -57,6 +71,24 @@ function WritingsListContent() {
         await toggleSharing({ id: writingId, shared });
     };
 
+    const handleDeleteClick = (
+        e: React.MouseEvent,
+        writingId: Id<"writings">
+    ) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setWritingToDelete(writingId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (writingToDelete) {
+            await deleteWriting({ id: writingToDelete });
+            setDeleteDialogOpen(false);
+            setWritingToDelete(null);
+        }
+    };
+
     if (!writings) {
         return (
             <div className="my-16 flex items-center justify-center">
@@ -95,6 +127,17 @@ function WritingsListContent() {
                     isTimerRunning = elapsed < totalDuration;
                 }
 
+                const shareButtonText =
+                    copiedId === writing._id
+                        ? "Copied"
+                        : writing.shared
+                          ? "Copy link"
+                          : "Share";
+
+                const textPreview = writing.textPreview
+                    ? writing.textPreview.slice(0, 100)
+                    : "New Writing";
+
                 return (
                     <Link
                         key={writing._id}
@@ -102,18 +145,10 @@ function WritingsListContent() {
                         className="border-border bg-card hover:bg-accent/20 block rounded-lg border p-6 transition-colors"
                     >
                         <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 space-y-1">
+                            <div className="flex-1 space-y-1 overflow-hidden">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-foreground font-medium">
-                                        Writing from{" "}
-                                        {createdDate.toLocaleDateString(
-                                            "en-US",
-                                            {
-                                                month: "short",
-                                                day: "numeric",
-                                                year: "numeric",
-                                            }
-                                        )}
+                                    <h2 className="text-foreground truncate font-medium">
+                                        {textPreview}
                                     </h2>
                                     {isTimerRunning && (
                                         <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
@@ -121,68 +156,83 @@ function WritingsListContent() {
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <p className="text-muted-foreground text-sm">
-                                        Last edited{" "}
-                                        {formatRelativeTime(writing.updatedAt)}
-                                    </p>
-                                    {writing.shared && (
-                                        <>
-                                            <span className="text-muted-foreground text-sm">
-                                                ·
-                                            </span>
-                                            <Button
-                                                onClick={(e) =>
-                                                    handleShare(
-                                                        e,
-                                                        writing._id,
-                                                        writing.shared ?? false
-                                                    )
+
+                                <div className="flex flex-col gap-2 text-sm md:flex-row md:items-center">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-muted-foreground">
+                                            {createdDate.toLocaleDateString(
+                                                "en-US",
+                                                {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
                                                 }
-                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
-                                            >
-                                                {copiedId === writing._id
-                                                    ? "Copied"
-                                                    : "Copy link"}
-                                            </Button>
-                                            <span className="text-muted-foreground text-sm">
-                                                ·
-                                            </span>
-                                            <Button
-                                                onClick={(e) =>
-                                                    handleToggleSharing(
-                                                        e,
-                                                        writing._id,
-                                                        false
-                                                    )
-                                                }
-                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
-                                            >
-                                                Make private
-                                            </Button>
-                                        </>
-                                    )}
-                                    {!writing.shared && (
-                                        <>
-                                            <span className="text-muted-foreground text-sm">
-                                                ·
-                                            </span>
-                                            <Button
-                                                onClick={(e) =>
-                                                    handleShare(
-                                                        e,
-                                                        writing._id,
-                                                        false
-                                                    )
-                                                }
-                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
-                                            >
-                                                {copiedId === writing._id
-                                                    ? "Copied"
-                                                    : "Share"}
-                                            </Button>
-                                        </>
-                                    )}
+                                            )}
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                            ·
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                            Last edited{" "}
+                                            {formatRelativeTime(
+                                                writing.updatedAt
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    <span className="text-muted-foreground hidden md:inline">
+                                        ·
+                                    </span>
+
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            onClick={(e) =>
+                                                handleShare(
+                                                    e,
+                                                    writing._id,
+                                                    writing.shared ?? false
+                                                )
+                                            }
+                                            className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                        >
+                                            {shareButtonText}
+                                        </Button>
+
+                                        {writing.shared && (
+                                            <>
+                                                <span className="text-muted-foreground">
+                                                    ·
+                                                </span>
+                                                <Button
+                                                    onClick={(e) =>
+                                                        handleToggleSharing(
+                                                            e,
+                                                            writing._id,
+                                                            false
+                                                        )
+                                                    }
+                                                    className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                                >
+                                                    Make private
+                                                </Button>
+                                            </>
+                                        )}
+
+                                        <span className="text-muted-foreground">
+                                            ·
+                                        </span>
+                                        <Button
+                                            onClick={(e) =>
+                                                handleDeleteClick(
+                                                    e,
+                                                    writing._id
+                                                )
+                                            }
+                                            className="text-muted-foreground hover:text-destructive text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="text-muted-foreground">
@@ -192,6 +242,29 @@ function WritingsListContent() {
                     </Link>
                 );
             })}
+            <AlertDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete writing?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your writing.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
