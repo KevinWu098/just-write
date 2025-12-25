@@ -71,12 +71,19 @@ function WritingsListContent() {
         await toggleSharing({ id: writingId, shared });
     };
 
-    const handleDeleteClick = (
+    const handleDeleteClick = async (
         e: React.MouseEvent,
         writingId: Id<"writings">
     ) => {
         e.preventDefault();
         e.stopPropagation();
+
+        // Skip confirmation if Control key is held
+        if (e.ctrlKey || e.metaKey) {
+            await deleteWriting({ id: writingId });
+            return;
+        }
+
         setWritingToDelete(writingId);
         setDeleteDialogOpen(true);
     };
@@ -256,10 +263,12 @@ function WritingsListContent() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">
+                            Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDeleteConfirm}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
                         >
                             Delete
                         </AlertDialogAction>
