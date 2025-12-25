@@ -7,6 +7,7 @@ export default defineSchema({
         timerStartedAt: v.union(v.number(), v.null()), // Timestamp when timer started (null if not started)
         createdBy: v.string(), // For now just a string, can be linked to users table later when auth is added
         updatedAt: v.number(), // Timestamp for last update
+        shared: v.optional(v.boolean()), // Whether the writing is publicly shared
     }),
     users: defineTable({
         name: v.string(),

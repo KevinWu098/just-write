@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { api } from "convex/_generated/api";
-import { Authenticated, useQuery } from "convex/react";
+import type { Id } from "convex/_generated/dataModel";
+import { Authenticated, useMutation, useQuery } from "convex/react";
 import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
 
 function WritingsListContent() {
     const writings = useQuery(api.writing.list);
+    const toggleSharing = useMutation(api.writing.toggleSharing);
     const [, setNow] = useState(Date.now());
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -17,6 +20,40 @@ function WritingsListContent() {
         }, 1000);
         return () => clearInterval(interval);
     }, []);
+
+    const handleShare = async (
+        e: React.MouseEvent,
+        writingId: Id<"writings">,
+        isCurrentlyShared: boolean
+    ) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isCurrentlyShared) {
+            // Enable sharing
+            await toggleSharing({ id: writingId, shared: true });
+        }
+
+        // Copy link to clipboard
+        const shareUrl = `${window.location.origin}/writings/${writingId}`;
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setCopiedId(writingId);
+            setTimeout(() => setCopiedId(null), 2000);
+        } catch (err) {
+            console.error("Failed to copy:", err);
+        }
+    };
+
+    const handleToggleSharing = async (
+        e: React.MouseEvent,
+        writingId: Id<"writings">,
+        shared: boolean
+    ) => {
+        e.preventDefault();
+        e.stopPropagation();
+        await toggleSharing({ id: writingId, shared });
+    };
 
     if (!writings) {
         return (
@@ -59,7 +96,7 @@ function WritingsListContent() {
                 return (
                     <Link
                         key={writing._id}
-                        href={`/${writing._id}`}
+                        href={`/writings/${writing._id}`}
                         className="border-border bg-card hover:bg-accent/50 block rounded-lg border p-6 transition-colors"
                     >
                         <div className="flex items-start justify-between gap-4">
@@ -82,10 +119,69 @@ function WritingsListContent() {
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-muted-foreground text-sm">
-                                    Last edited{" "}
-                                    {formatRelativeTime(writing.updatedAt)}
-                                </p>
+                                <div className="flex items-center gap-3">
+                                    <p className="text-muted-foreground text-sm">
+                                        Last edited{" "}
+                                        {formatRelativeTime(writing.updatedAt)}
+                                    </p>
+                                    {writing.shared && (
+                                        <>
+                                            <span className="text-muted-foreground text-sm">
+                                                ·
+                                            </span>
+                                            <button
+                                                onClick={(e) =>
+                                                    handleShare(
+                                                        e,
+                                                        writing._id,
+                                                        writing.shared ?? false
+                                                    )
+                                                }
+                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                            >
+                                                {copiedId === writing._id
+                                                    ? "Copied"
+                                                    : "Copy link"}
+                                            </button>
+                                            <span className="text-muted-foreground text-sm">
+                                                ·
+                                            </span>
+                                            <button
+                                                onClick={(e) =>
+                                                    handleToggleSharing(
+                                                        e,
+                                                        writing._id,
+                                                        false
+                                                    )
+                                                }
+                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                            >
+                                                Make private
+                                            </button>
+                                        </>
+                                    )}
+                                    {!writing.shared && (
+                                        <>
+                                            <span className="text-muted-foreground text-sm">
+                                                ·
+                                            </span>
+                                            <button
+                                                onClick={(e) =>
+                                                    handleShare(
+                                                        e,
+                                                        writing._id,
+                                                        false
+                                                    )
+                                                }
+                                                className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
+                                            >
+                                                {copiedId === writing._id
+                                                    ? "Copied"
+                                                    : "Share"}
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             <div className="text-muted-foreground">
                                 <ChevronRightIcon />

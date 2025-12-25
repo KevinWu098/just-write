@@ -1,6 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
-
-import { Client } from "@/app/[id]/client";
+import { Client } from "@/app/writings/[id]/client";
 
 export default async function Page({
     params,
@@ -8,7 +6,6 @@ export default async function Page({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    await auth.protect();
 
     return <Client id={id} />;
 }

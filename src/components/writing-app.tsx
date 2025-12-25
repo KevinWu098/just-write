@@ -28,14 +28,23 @@ type Writing = {
 interface WritingAppProps {
     document?: Writing | null;
     id: string;
+    readOnly?: boolean;
+    isAuthenticated?: boolean;
 }
 
-export function WritingApp({ document, id }: WritingAppProps) {
+export function WritingApp({
+    document,
+    id,
+    readOnly = false,
+    isAuthenticated = true,
+}: WritingAppProps) {
     const updateTimer = useMutation(api.writing.updateTimer);
     const startTimer = useMutation(api.writing.startTimer);
     const sync = useTiptapSync(api.writing, id);
-    // Start in "writing" state immediately
-    const [state, setState] = useState<WritingState>("writing");
+    // Start in "writing" state immediately, or "locked" if read-only
+    const [state, setState] = useState<WritingState>(
+        readOnly ? "locked" : "writing"
+    );
     const [duration, setDuration] = useState<number | null>(
         document?.timerDuration ?? 10
     );
@@ -43,12 +52,12 @@ export function WritingApp({ document, id }: WritingAppProps) {
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
     const [editor, setEditor] = useState<any>(null);
 
-    // Start the timer immediately when document loads
+    // Start the timer immediately when document loads (not in read-only mode)
     useEffect(() => {
-        if (document && !document.timerStartedAt) {
+        if (document && !document.timerStartedAt && !readOnly) {
             void startTimer({ id: document._id });
         }
-    }, [document, startTimer]);
+    }, [document, startTimer, readOnly]);
 
     // Update duration when document changes
     useEffect(() => {
@@ -100,7 +109,7 @@ export function WritingApp({ document, id }: WritingAppProps) {
         [document, updateTimer]
     );
 
-    const isLocked = state === "locked" && duration !== null;
+    const isLocked = readOnly || (state === "locked" && duration !== null);
 
     // Set editor editability based on locked state
     useEffect(() => {
@@ -141,16 +150,20 @@ export function WritingApp({ document, id }: WritingAppProps) {
                     <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
                         <div className="flex items-center gap-4">
                             <Link
-                                href="/writings"
+                                href={readOnly ? "/" : "/writings"}
                                 className="text-muted-foreground hover:text-foreground transition-colors"
-                                title="Back to all writings"
+                                title={
+                                    readOnly
+                                        ? "Go to home"
+                                        : "Back to all writings"
+                                }
                             >
                                 <ArrowLeftIcon className="h-5 w-5" />
                             </Link>
                             <TimerDisplay
                                 duration={duration}
                                 startedAt={document?.timerStartedAt ?? null}
-                                isRunning={state === "writing"}
+                                isRunning={!readOnly && state === "writing"}
                                 onTimerEnd={handleTimerEnd}
                             />
                         </div>
@@ -158,7 +171,15 @@ export function WritingApp({ document, id }: WritingAppProps) {
                             <span className="text-muted-foreground text-sm tabular-nums">
                                 {wordCount} {wordCount === 1 ? "word" : "words"}
                             </span>
-                            {state === "writing" && (
+                            {readOnly && !isAuthenticated && (
+                                <Link
+                                    href="/sign-in"
+                                    className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors hover:underline"
+                                >
+                                    Sign In
+                                </Link>
+                            )}
+                            {!readOnly && state === "writing" && (
                                 <Button
                                     onClick={() =>
                                         setShowTimerAdjust(!showTimerAdjust)
@@ -173,10 +194,10 @@ export function WritingApp({ document, id }: WritingAppProps) {
                                         : "Adjust Time"}
                                 </Button>
                             )}
-                            {isLocked && (
+                            {!readOnly && isLocked && (
                                 <Button
                                     onClick={handleReset}
-                                    className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
+                                    className="text-accent hover:text-accent text-sm font-medium transition-colors"
                                 >
                                     New Session
                                 </Button>
@@ -184,7 +205,7 @@ export function WritingApp({ document, id }: WritingAppProps) {
                         </div>
                     </div>
                 </header>
-                {showTimerAdjust && state === "writing" && (
+                {!readOnly && showTimerAdjust && state === "writing" && (
                     <div className="bg-muted/50 border-border border-b backdrop-blur-sm">
                         <TimerAdjust
                             currentDuration={duration}
@@ -201,11 +222,13 @@ export function WritingApp({ document, id }: WritingAppProps) {
                         onEditorReady={setEditor}
                     />
                 </div>
-                {isLocked && (
+                {isLocked && duration !== null && (
                     <div className="bg-muted/50 border-border sticky bottom-0 border-t backdrop-blur-sm">
                         <div className="mx-auto max-w-3xl px-4 py-4 text-center">
                             <p className="text-muted-foreground font-serif italic">
-                                {"Time's up. Your thoughts have been captured."}
+                                {readOnly
+                                    ? "This writing session has ended."
+                                    : "Time's up. Your thoughts have been captured."}
                             </p>
                         </div>
                     </div>

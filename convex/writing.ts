@@ -33,6 +33,7 @@ export const create = mutation({
             timerStartedAt: null,
             createdBy: identity.subject,
             updatedAt: Date.now(),
+            shared: false,
         });
 
         try {
@@ -55,22 +56,24 @@ export const get = query({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-
-        if (identity === null) {
-            throw new Error("Not authenticated");
-        }
-
         const writing = await ctx.db.get(args.id);
 
         if (!writing) {
-            throw new Error("Writing not found");
+            return null;
         }
 
-        if (writing.createdBy !== identity.subject) {
-            throw new Error("Not authorized");
+        // Allow access if:
+        // 1. User is the owner
+        // 2. Document is shared (even if not authenticated)
+        if (identity && writing.createdBy === identity.subject) {
+            return writing;
         }
 
-        return writing;
+        if (writing.shared) {
+            return writing;
+        }
+
+        return null;
     },
 });
 
@@ -170,5 +173,53 @@ export const updateTimer = mutation({
             timerStartedAt: newStartTime,
             updatedAt: Date.now(),
         });
+    },
+});
+
+export const toggleSharing = mutation({
+    args: {
+        id: v.id("writings"),
+        shared: v.boolean(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (identity === null) {
+            throw new Error("Not authenticated");
+        }
+
+        const writing = await ctx.db.get(args.id);
+
+        if (!writing) {
+            throw new Error("Writing not found");
+        }
+
+        if (writing.createdBy !== identity.subject) {
+            throw new Error("Not authorized");
+        }
+
+        await ctx.db.patch(args.id, {
+            shared: args.shared,
+            updatedAt: Date.now(),
+        });
+    },
+});
+
+export const getShared = query({
+    args: {
+        id: v.id("writings"),
+    },
+    handler: async (ctx, args) => {
+        const writing = await ctx.db.get(args.id);
+
+        if (!writing) {
+            return null;
+        }
+
+        if (!writing.shared) {
+            return null;
+        }
+
+        return writing;
     },
 });
