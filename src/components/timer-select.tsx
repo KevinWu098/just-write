@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { useUser } from "@clerk/nextjs";
 import { api } from "convex/_generated/api";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
@@ -12,23 +13,65 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const DURATIONS = [5, 10, 15, 20, 30, null] as const;
+const PENDING_WRITING_KEY = "pendingWritingTimer";
 
 export function TimerSelect() {
     const router = useRouter();
+    const { isSignedIn, isLoaded } = useUser();
     const [selectedDuration, setSelectedDuration] =
         useState<(typeof DURATIONS)[number]>(10);
     const createWriting = useMutation(api.writing.create);
+    const [isPending, startTransition] = useTransition();
+
+    // Check for pending writing on mount after auth loads
+    useEffect(() => {
+        if (!isLoaded || !isSignedIn) return;
+
+        const pendingTimer = sessionStorage.getItem(PENDING_WRITING_KEY);
+        if (!pendingTimer) return;
+
+        // Clear immediately to prevent re-triggering
+        sessionStorage.removeItem(PENDING_WRITING_KEY);
+
+        // Create writing in a transition for better UX
+        startTransition(async () => {
+            try {
+                const duration =
+                    pendingTimer === "null"
+                        ? null
+                        : Number.parseInt(pendingTimer);
+                const writingId = await createWriting({
+                    timerDuration: Number.isNaN(duration) ? null : duration,
+                });
+                router.push(`/writings/${writingId}`);
+            } catch (error) {
+                console.error("Error creating writing:", error);
+                toast.error("Failed to create writing");
+            }
+        });
+    }, [isLoaded, isSignedIn, createWriting, router]);
 
     async function handleStart() {
-        try {
-            const writingId = await createWriting({
-                timerDuration: selectedDuration,
-            });
-            router.push(`/writings/${writingId}`);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to create writing");
+        if (!isSignedIn) {
+            // Store timer duration in sessionStorage and redirect to sign-in
+            const timerParam =
+                selectedDuration === null ? "null" : String(selectedDuration);
+            sessionStorage.setItem(PENDING_WRITING_KEY, timerParam);
+            router.push("/sign-in");
+            return;
         }
+
+        startTransition(async () => {
+            try {
+                const writingId = await createWriting({
+                    timerDuration: selectedDuration,
+                });
+                router.push(`/writings/${writingId}`);
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to create writing");
+            }
+        });
     }
 
     return (
@@ -70,9 +113,10 @@ export function TimerSelect() {
             <div className="space-y-3">
                 <Button
                     onClick={handleStart}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors"
+                    disabled={isPending || !isLoaded}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors disabled:opacity-50"
                 >
-                    Begin
+                    {isPending ? "Creating..." : "Begin"}
                 </Button>
 
                 <Link href="/writings">

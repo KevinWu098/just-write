@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { SignOutButton } from "@clerk/nextjs";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { LogOutIcon, UserIcon } from "lucide-react";
+import { currentUser } from "@clerk/nextjs/server";
 
 import { Button } from "@/components/ui/button";
 
 import { WritingsList } from "./writings-list";
 
 export default async function Page() {
-    await auth.protect();
     const user = await currentUser();
 
     const displayName =

@@ -10,6 +10,7 @@ import "./globals.css";
 import "core-js/actual/iterator";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ConvexClientProvider } from "@/app/convex-client-provider";
@@ -44,10 +45,12 @@ export default function RootLayout({
             <body className={`root font-sans antialiased`}>
                 <ClerkProvider>
                     <ConvexClientProvider>
-                        <div className="bg-background flex flex-1 flex-col">
-                            {children}
-                        </div>
-                        <Toaster position="bottom-center" />
+                        <NuqsAdapter>
+                            <div className="bg-background flex flex-1 flex-col">
+                                {children}
+                            </div>
+                            <Toaster position="bottom-center" />
+                        </NuqsAdapter>
                     </ConvexClientProvider>
                 </ClerkProvider>
             </body>
