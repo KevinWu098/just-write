@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Check, Infinity, Plus, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface TimerAdjustProps {
     currentDuration: number | null;

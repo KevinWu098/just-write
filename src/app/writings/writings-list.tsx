@@ -3,16 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { useQuery } from "convex/react";
-import { ChevronRightIcon } from "lucide-react";
-
 import { api } from "convex/_generated/api";
+import { useQuery } from "convex/react";
+import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
 
 export function WritingsList() {
     const writings = useQuery(api.writing.list);
     const [, setNow] = useState(Date.now());
 
-    // Update every second to keep timer status fresh
     useEffect(() => {
         const interval = setInterval(() => {
             setNow(Date.now());
@@ -21,7 +19,11 @@ export function WritingsList() {
     }, []);
 
     if (!writings) {
-        return null;
+        return (
+            <div className="my-16 flex items-center justify-center">
+                <EllipsisIcon className="text-muted-foreground mx-auto size-8" />
+            </div>
+        );
     }
 
     if (writings.length === 0) {
@@ -32,7 +34,7 @@ export function WritingsList() {
                     href="/"
                     className="text-foreground font-medium hover:underline"
                 >
-                    Start your first writing →
+                    Begin →
                 </Link>
             </div>
         );
@@ -63,16 +65,23 @@ export function WritingsList() {
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 space-y-1">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-foreground font-medium">
-                                        Writing from{" "}
-                                        {createdDate.toLocaleDateString(
-                                            "en-US",
-                                            {
-                                                month: "short",
-                                                day: "numeric",
-                                                year: "numeric",
-                                            }
-                                        )}
+                                    <h2 className="text-foreground line-clamp-1 font-medium">
+                                        {writing.textPreview &&
+                                        writing.textPreview.length > 0
+                                            ? writing.textPreview.length > 80
+                                                ? writing.textPreview.substring(
+                                                      0,
+                                                      80
+                                                  ) + "..."
+                                                : writing.textPreview
+                                            : `Writing from ${createdDate.toLocaleDateString(
+                                                  "en-US",
+                                                  {
+                                                      month: "short",
+                                                      day: "numeric",
+                                                      year: "numeric",
+                                                  }
+                                              )}`}
                                     </h2>
                                     {isTimerRunning && (
                                         <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
@@ -81,10 +90,6 @@ export function WritingsList() {
                                     )}
                                 </div>
                                 <p className="text-muted-foreground text-sm">
-                                    {writing.timerDuration === null
-                                        ? "No timer"
-                                        : `${writing.timerDuration} minute${writing.timerDuration !== 1 ? "s" : ""}`}
-                                    {" · "}
                                     Last edited{" "}
                                     {formatRelativeTime(writing.updatedAt)}
                                 </p>

@@ -37,7 +37,7 @@ export function WritingApp({ document, id }: WritingAppProps) {
     // Start in "writing" state immediately
     const [state, setState] = useState<WritingState>("writing");
     const [duration, setDuration] = useState<number | null>(
-        document?.timerDuration ?? 5
+        document?.timerDuration ?? 10
     );
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);

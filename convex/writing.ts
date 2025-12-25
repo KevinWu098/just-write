@@ -21,11 +21,17 @@ export const create = mutation({
         timerDuration: v.optional(v.union(v.number(), v.null())),
     },
     handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (identity === null) {
+            throw new Error("Not authenticated");
+        }
+
         const writingId = await ctx.db.insert("writings", {
             timerDuration:
                 args.timerDuration !== undefined ? args.timerDuration : 5,
             timerStartedAt: null,
-            createdBy: "anonymous", // TODO: Add auth later
+            createdBy: identity.subject,
             updatedAt: Date.now(),
         });
 
@@ -35,8 +41,8 @@ export const create = mutation({
                 content: [],
             });
         } catch (error) {
-            console.error("Error creating ProseMirror document:", error);
             // Document might already exist, that's okay
+            console.error("Error creating ProseMirror document:", error);
         }
 
         return writingId;
@@ -48,14 +54,83 @@ export const get = query({
         id: v.id("writings"),
     },
     handler: async (ctx, args) => {
-        return await ctx.db.get(args.id);
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (identity === null) {
+            throw new Error("Not authenticated");
+        }
+
+        const writing = await ctx.db.get(args.id);
+
+        if (!writing) {
+            throw new Error("Writing not found");
+        }
+
+        if (writing.createdBy !== identity.subject) {
+            throw new Error("Not authorized");
+        }
+
+        return writing;
     },
 });
 
 export const list = query({
     args: {},
     handler: async (ctx) => {
-        return await ctx.db.query("writings").order("desc").collect();
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (identity === null) {
+            throw new Error("Not authenticated");
+        }
+
+        const writings = await ctx.db
+            .query("writings")
+            .filter((q) => q.eq(q.field("createdBy"), identity.subject))
+            .order("desc")
+            .collect();
+
+        const writingsWithPreview = await Promise.all(
+            writings.map(async (writing) => {
+                try {
+                    const snapshot = await ctx.runQuery(
+                        components.prosemirrorSync.lib.getSnapshot,
+                        { id: writing._id }
+                    );
+                    let textPreview = "";
+
+                    // Extract text from ProseMirror document
+                    if (snapshot.content) {
+                        const doc = JSON.parse(snapshot.content);
+                        const extractText = (node: any): string => {
+                            if (node.text) {
+                                return node.text;
+                            }
+                            if (node.content && Array.isArray(node.content)) {
+                                return node.content
+                                    .map((child: any) => extractText(child))
+                                    .join(" ");
+                            }
+                            return "";
+                        };
+
+                        textPreview = extractText(doc).trim();
+                    }
+
+                    return {
+                        ...writing,
+                        textPreview: textPreview || null,
+                    };
+                } catch (error) {
+                    // If there's an error fetching the snapshot, just return without preview
+                    return {
+                        ...writing,
+                        textPreview: null,
+                    };
+                }
+            })
+        );
+
+        return writingsWithPreview;
     },
 });
 

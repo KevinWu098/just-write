@@ -57,10 +57,15 @@ export function TimerDisplay({
             calculateCurrentTime();
         setTimeLeft(newTimeLeft);
         setElapsedTime(newElapsedTime);
-        setHasEnded(
-            newTimeLeft === 0 && duration !== null && startedAt !== null
-        );
-    }, [startedAt, duration, calculateCurrentTime]);
+        const shouldEnd =
+            newTimeLeft === 0 && duration !== null && startedAt !== null;
+        setHasEnded(shouldEnd);
+
+        // If timer has already ended when component loads, call onTimerEnd
+        if (shouldEnd && !hasEnded) {
+            onTimerEnd();
+        }
+    }, [startedAt, duration, calculateCurrentTime, hasEnded, onTimerEnd]);
 
     useEffect(() => {
         if (!isRunning || hasEnded) {
@@ -125,7 +130,7 @@ export function TimerDisplay({
         const seconds = elapsedTime % 60;
         return (
             <div className="flex items-center gap-3">
-                <div className="relative flex h-10 w-10 items-center justify-center">
+                <div className="relative flex h-7 w-7 items-center justify-center">
                     <span className="text-accent text-2xl">∞</span>
                 </div>
                 <span className="text-muted-foreground font-mono text-xl tabular-nums">
@@ -143,9 +148,9 @@ export function TimerDisplay({
 
     return (
         <div className="flex items-center gap-3">
-            <div className={cn("relative h-10 w-10")}>
+            <div className={cn("relative h-7 w-7")}>
                 <svg
-                    className="h-10 w-10 -rotate-90 transition-all duration-1000 ease-in-out"
+                    className="h-7 w-7 -rotate-90 transition-all duration-1000 ease-in-out"
                     viewBox="0 0 36 36"
                 >
                     <circle

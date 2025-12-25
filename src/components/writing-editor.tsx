@@ -121,7 +121,7 @@ export const WritingEditor = memo(function WritingEditor({
     if (!editor) {
         return (
             <div className="flex flex-1 flex-col">
-                <div className="bg-background/80 border-border sticky top-[65px] z-10 border-b backdrop-blur-sm">
+                <div className="bg-background/80 border-border sticky top-[53px] z-10 border-b backdrop-blur-sm">
                     <div className="mx-auto max-w-3xl px-4 py-2">
                         <div className="h-9" />
                     </div>
@@ -137,7 +137,7 @@ export const WritingEditor = memo(function WritingEditor({
 
     return (
         <div className="flex w-full flex-1 flex-col">
-            <div className="sticky top-[65px] z-10">
+            <div className="sticky top-[53px] z-10">
                 <EditorToolbar
                     editor={editor}
                     isLocked={isLocked}

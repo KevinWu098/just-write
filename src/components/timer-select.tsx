@@ -16,7 +16,7 @@ const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 export function TimerSelect() {
     const router = useRouter();
     const [selectedDuration, setSelectedDuration] =
-        useState<(typeof DURATIONS)[number]>(5);
+        useState<(typeof DURATIONS)[number]>(10);
     const createWriting = useMutation(api.writing.create);
 
     async function handleStart() {
