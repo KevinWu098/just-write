@@ -155,6 +155,7 @@ export const updateTimer = mutation({
         id: v.id("writings"),
         timerDuration: v.union(v.number(), v.null()),
         endSession: v.optional(v.boolean()),
+        resetTimer: v.optional(v.boolean()), // If true, reset start time to give full duration
     },
     handler: async (ctx, args) => {
         const writing = await ctx.db.get(args.id);
@@ -169,9 +170,15 @@ export const updateTimer = mutation({
             return;
         }
 
-        // Keep the start time the same - this maintains elapsed time
-        // and extends/reduces the total duration
+        // Determine start time based on whether we're resetting or adding time
         let newStartTime = writing.timerStartedAt;
+        
+        if (args.resetTimer && args.timerDuration !== null) {
+            // Reset: give full duration from now
+            newStartTime = Date.now();
+        }
+        // Otherwise keep the start time the same - this maintains elapsed time
+        // and extends/reduces the total duration (for adding time)
 
         await ctx.db.patch(args.id, {
             timerDuration: args.timerDuration,

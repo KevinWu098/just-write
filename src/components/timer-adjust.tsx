@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface TimerAdjustProps {
     currentDuration: number | null;
-    onChangeDuration: (duration: number | null) => void;
+    onChangeDuration: (duration: number | null, resetTimer?: boolean) => void;
     onCancel: () => void;
 }
 
@@ -44,7 +44,7 @@ export function TimerAdjust({
         if (selectedDuration === null) {
             setShowUnlimitedConfirm(true);
         } else {
-            onChangeDuration(selectedDuration);
+            onChangeDuration(selectedDuration, true); // Reset timer when switching
         }
     };
 
@@ -53,7 +53,8 @@ export function TimerAdjust({
             <div className="mx-auto w-full max-w-3xl px-4 py-6">
                 <div className="space-y-4 text-center">
                     <p className="text-muted-foreground">
-                        Switch to unlimited writing? Your timer will stop.
+                        Switch to unlimited writing? Your timer will stop. This
+                        cannot be changed later.
                     </p>
                     <div className="flex items-center justify-center gap-3">
                         <Button

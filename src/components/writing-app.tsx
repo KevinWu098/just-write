@@ -116,13 +116,14 @@ export function WritingApp({
     }, [document, duration, updateTimer]);
 
     const handleChangeDuration = useCallback(
-        (newDuration: number | null) => {
+        (newDuration: number | null, resetTimer = false) => {
             setDuration(newDuration);
             setShowTimerAdjust(false);
             if (document) {
                 void updateTimer({
                     id: document._id,
                     timerDuration: newDuration,
+                    resetTimer,
                 });
             }
         },
