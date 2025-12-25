@@ -169,15 +169,9 @@ export const updateTimer = mutation({
             return;
         }
 
-        // If timer is running, calculate elapsed time and adjust start time
+        // Keep the start time the same - this maintains elapsed time
+        // and extends/reduces the total duration
         let newStartTime = writing.timerStartedAt;
-        if (writing.timerStartedAt && writing.timerDuration !== null) {
-            const elapsed = Date.now() - writing.timerStartedAt;
-            const oldTotalMs = writing.timerDuration * 60 * 1000;
-            const newTotalMs = (args.timerDuration ?? 0) * 60 * 1000;
-            // Adjust start time to maintain the same remaining time percentage
-            newStartTime = Date.now() - (elapsed * newTotalMs) / oldTotalMs;
-        }
 
         await ctx.db.patch(args.id, {
             timerDuration: args.timerDuration,
