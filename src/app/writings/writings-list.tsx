@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { api } from "convex/_generated/api";
-import { useQuery } from "convex/react";
+import { Authenticated, useQuery } from "convex/react";
 import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
 
-export function WritingsList() {
+function WritingsListContent() {
     const writings = useQuery(api.writing.list);
     const [, setNow] = useState(Date.now());
 
@@ -65,23 +65,16 @@ export function WritingsList() {
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 space-y-1">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-foreground line-clamp-1 font-medium">
-                                        {writing.textPreview &&
-                                        writing.textPreview.length > 0
-                                            ? writing.textPreview.length > 80
-                                                ? writing.textPreview.substring(
-                                                      0,
-                                                      80
-                                                  ) + "..."
-                                                : writing.textPreview
-                                            : `Writing from ${createdDate.toLocaleDateString(
-                                                  "en-US",
-                                                  {
-                                                      month: "short",
-                                                      day: "numeric",
-                                                      year: "numeric",
-                                                  }
-                                              )}`}
+                                    <h2 className="text-foreground font-medium">
+                                        Writing from{" "}
+                                        {createdDate.toLocaleDateString(
+                                            "en-US",
+                                            {
+                                                month: "short",
+                                                day: "numeric",
+                                                year: "numeric",
+                                            }
+                                        )}
                                     </h2>
                                     {isTimerRunning && (
                                         <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
@@ -139,4 +132,12 @@ function formatRelativeTime(timestamp: number): string {
         day: "numeric",
         year: "numeric",
     });
+}
+
+export function WritingsList() {
+    return (
+        <Authenticated>
+            <WritingsListContent />
+        </Authenticated>
+    );
 }

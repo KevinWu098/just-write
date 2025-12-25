@@ -43,16 +43,14 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`root font-sans antialiased`}>
-                <Providers>
-                    <ClerkProvider>
-                        <ConvexClientProvider>
-                            <div className="bg-background flex flex-1 flex-col">
-                                {children}
-                            </div>
-                            <Toaster position="bottom-center" />
-                        </ConvexClientProvider>
-                    </ClerkProvider>
-                </Providers>
+                <ClerkProvider>
+                    <ConvexClientProvider>
+                        <div className="bg-background flex flex-1 flex-col">
+                            {children}
+                        </div>
+                        <Toaster position="bottom-center" />
+                    </ConvexClientProvider>
+                </ClerkProvider>
             </body>
         </html>
     );

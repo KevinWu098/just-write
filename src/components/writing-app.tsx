@@ -7,7 +7,7 @@ import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, EllipsisIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TimerAdjust } from "@/components/timer-adjust";
@@ -113,7 +113,9 @@ export function WritingApp({ document, id }: WritingAppProps) {
     if (sync.isLoading) {
         return (
             <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
-                <p>Loading...</p>
+                <div className="my-16 flex items-center justify-center">
+                    <EllipsisIcon className="text-muted-foreground mx-auto size-8" />
+                </div>
             </main>
         );
     }

@@ -7,6 +7,7 @@ import Typography from "@tiptap/extension-typography";
 import type { Editor, Extensions } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { EllipsisIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -124,11 +125,6 @@ export const WritingEditor = memo(function WritingEditor({
                 <div className="bg-background/80 border-border sticky top-[53px] z-10 border-b backdrop-blur-sm">
                     <div className="mx-auto max-w-3xl px-4 py-2">
                         <div className="h-9" />
-                    </div>
-                </div>
-                <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-                    <div className="min-h-full text-lg leading-relaxed opacity-50 outline-none md:text-xl">
-                        Loading...
                     </div>
                 </div>
             </div>
