@@ -24,7 +24,7 @@ export function TimerSelect() {
             const writingId = await createWriting({
                 timerDuration: selectedDuration,
             });
-            router.push(`/${writingId}`);
+            router.push(`/writings/${writingId}`);
         } catch (error) {
             console.error(error);
             toast.error("Failed to create writing");
