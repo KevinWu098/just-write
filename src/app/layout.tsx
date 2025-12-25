@@ -12,7 +12,6 @@ import "core-js/actual/iterator";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "@/components/providers";
 import { ConvexClientProvider } from "@/app/convex-client-provider";
 
 const _instrumentSans = Instrument_Sans({ subsets: ["latin"] });
