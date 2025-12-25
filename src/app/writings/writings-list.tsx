@@ -8,6 +8,8 @@ import type { Id } from "convex/_generated/dataModel";
 import { Authenticated, useMutation, useQuery } from "convex/react";
 import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 function WritingsListContent() {
     const writings = useQuery(api.writing.list);
     const toggleSharing = useMutation(api.writing.toggleSharing);
@@ -129,7 +131,7 @@ function WritingsListContent() {
                                             <span className="text-muted-foreground text-sm">
                                                 ·
                                             </span>
-                                            <button
+                                            <Button
                                                 onClick={(e) =>
                                                     handleShare(
                                                         e,
@@ -142,11 +144,11 @@ function WritingsListContent() {
                                                 {copiedId === writing._id
                                                     ? "Copied"
                                                     : "Copy link"}
-                                            </button>
+                                            </Button>
                                             <span className="text-muted-foreground text-sm">
                                                 ·
                                             </span>
-                                            <button
+                                            <Button
                                                 onClick={(e) =>
                                                     handleToggleSharing(
                                                         e,
@@ -157,7 +159,7 @@ function WritingsListContent() {
                                                 className="text-muted-foreground hover:text-foreground text-sm underline decoration-dotted underline-offset-2 transition-colors"
                                             >
                                                 Make private
-                                            </button>
+                                            </Button>
                                         </>
                                     )}
                                     {!writing.shared && (
@@ -165,7 +167,7 @@ function WritingsListContent() {
                                             <span className="text-muted-foreground text-sm">
                                                 ·
                                             </span>
-                                            <button
+                                            <Button
                                                 onClick={(e) =>
                                                     handleShare(
                                                         e,
@@ -178,7 +180,7 @@ function WritingsListContent() {
                                                 {copiedId === writing._id
                                                     ? "Copied"
                                                     : "Share"}
-                                            </button>
+                                            </Button>
                                         </>
                                     )}
                                 </div>

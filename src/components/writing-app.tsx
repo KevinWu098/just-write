@@ -42,15 +42,14 @@ export function WritingApp({
     const startTimer = useMutation(api.writing.startTimer);
     const sync = useTiptapSync(api.writing, id);
     // Start in "writing" state immediately, or "locked" if read-only
-    const [state, setState] = useState<WritingState>(
-        readOnly ? "locked" : "writing"
-    );
+    const [state, setState] = useState<WritingState>("writing");
     const [duration, setDuration] = useState<number | null>(
         document?.timerDuration ?? 10
     );
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
     const [editor, setEditor] = useState<any>(null);
+    const [timerEnded, setTimerEnded] = useState(false);
 
     // Start the timer immediately when document loads (not in read-only mode)
     useEffect(() => {
@@ -65,6 +64,22 @@ export function WritingApp({
             setDuration(document.timerDuration);
         }
     }, [document?.timerDuration]);
+
+    // Check if timer has already ended when component mounts
+    useEffect(() => {
+        if (
+            document &&
+            document.timerStartedAt &&
+            document.timerDuration !== null
+        ) {
+            const elapsed = (Date.now() - document.timerStartedAt) / 1000;
+            const totalSeconds = document.timerDuration * 60;
+            if (elapsed >= totalSeconds) {
+                setTimerEnded(true);
+                setState("locked");
+            }
+        }
+    }, [document]);
 
     // Update word count when editor content changes
     useEffect(() => {
@@ -88,6 +103,7 @@ export function WritingApp({
 
     const handleTimerEnd = useCallback(() => {
         setState("locked");
+        setTimerEnded(true);
     }, []);
 
     const handleReset = useCallback(() => {
@@ -109,7 +125,8 @@ export function WritingApp({
         [document, updateTimer]
     );
 
-    const isLocked = readOnly || (state === "locked" && duration !== null);
+    const isLocked =
+        readOnly || (state === "locked" && duration !== null && timerEnded);
 
     // Set editor editability based on locked state
     useEffect(() => {
@@ -133,12 +150,12 @@ export function WritingApp({
     if (sync.initialContent === null) {
         return (
             <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
-                <button
+                <Button
                     onClick={() => sync.create({ type: "doc", content: [] })}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2"
                 >
                     Initialize Document
-                </button>
+                </Button>
             </main>
         );
     }
@@ -163,7 +180,7 @@ export function WritingApp({
                             <TimerDisplay
                                 duration={duration}
                                 startedAt={document?.timerStartedAt ?? null}
-                                isRunning={!readOnly && state === "writing"}
+                                isRunning={state === "writing"}
                                 onTimerEnd={handleTimerEnd}
                             />
                         </div>
@@ -222,7 +239,7 @@ export function WritingApp({
                         onEditorReady={setEditor}
                     />
                 </div>
-                {isLocked && duration !== null && (
+                {timerEnded && duration !== null && (
                     <div className="bg-muted/50 border-border sticky bottom-0 border-t backdrop-blur-sm">
                         <div className="mx-auto max-w-3xl px-4 py-4 text-center">
                             <p className="text-muted-foreground font-serif italic">
