@@ -113,12 +113,6 @@ export const WritingEditor = memo(function WritingEditor({
         }
     }, [isLocked, editor]);
 
-    useEffect(() => {
-        if (!isLocked && editor) {
-            editor.commands.focus("end");
-        }
-    }, [isLocked, editor]);
-
     if (!editor) {
         return (
             <div className="flex flex-1 flex-col">

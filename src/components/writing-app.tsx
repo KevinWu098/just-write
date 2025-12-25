@@ -138,26 +138,12 @@ export function WritingApp({
     }, [editor, isLocked]);
 
     // Handle loading state
-    if (sync.isLoading) {
+    if (sync.isLoading || !sync.extension) {
         return (
             <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
                 <div className="my-16 flex items-center justify-center">
                     <EllipsisIcon className="text-muted-foreground mx-auto size-8" />
                 </div>
-            </main>
-        );
-    }
-
-    // If document doesn't exist yet, show create button
-    if (sync.initialContent === null) {
-        return (
-            <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
-                <Button
-                    onClick={() => sync.create({ type: "doc", content: [] })}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2"
-                >
-                    Initialize Document
-                </Button>
             </main>
         );
     }
