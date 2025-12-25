@@ -23,7 +23,7 @@ export function Client({ id }: { id: string }) {
 
     if (writing === null) {
         return (
-            <div className="bg-background flex min-h-dvh items-center justify-center">
+            <div className="bg-background flex min-h-dvh items-center justify-center px-4 py-12">
                 <div className="space-y-4 text-center">
                     <h1 className="text-foreground text-2xl font-medium">
                         Writing not available
@@ -35,6 +35,12 @@ export function Client({ id }: { id: string }) {
                             className="text-foreground hover:underline"
                         >
                             Want to write?
+                        </Link>{" "}
+                        <Link
+                            href={`/sign-in?redirect_url=${encodeURIComponent(`/writings/${id}`)}`}
+                            className="text-foreground hover:underline"
+                        >
+                            Or sign in?
                         </Link>
                     </p>
                 </div>

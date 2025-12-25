@@ -74,7 +74,7 @@ export const WritingEditor = memo(function WritingEditor({
         extensions: syncExtension
             ? [...editorExtensions, syncExtension]
             : editorExtensions,
-        content: initialContent ?? "",
+        content: initialContent ?? { type: "doc", content: [] },
         editorProps: {
             attributes: {
                 class: "outline-none min-h-full text-lg md:text-xl leading-relaxed",

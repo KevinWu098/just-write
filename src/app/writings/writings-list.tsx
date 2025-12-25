@@ -173,7 +173,7 @@ function WritingsListContent() {
                                             ·
                                         </span>
                                         <span className="text-muted-foreground">
-                                            Last edited{" "}
+                                            Edited{" "}
                                             {formatRelativeTime(
                                                 writing.updatedAt
                                             )}
