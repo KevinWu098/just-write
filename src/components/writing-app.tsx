@@ -21,6 +21,7 @@ type Writing = {
     createdBy: string;
     updatedAt: number;
     _creationTime: number;
+    sessionEnded?: boolean;
 };
 
 interface WritingAppProps {
@@ -39,9 +40,12 @@ export function WritingApp({
     const updateTimer = useMutation(api.writing.updateTimer);
     const startTimer = useMutation(api.writing.startTimer);
     const sync = useTiptapSync(api.writing, id);
-    const [duration, setDuration] = useState<number | null>(
-        document?.timerDuration ?? 10
-    );
+    const [duration, setDuration] = useState<number | null>(() => {
+        if (document?.timerDuration !== undefined) {
+            return document.timerDuration;
+        }
+        return 10;
+    });
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
     const [editor, setEditor] = useState<any>(null);
@@ -51,7 +55,7 @@ export function WritingApp({
         document && document.timerStartedAt && document.timerDuration !== null
             ? (Date.now() - document.timerStartedAt) / 1000 >=
               document.timerDuration * 60
-            : false;
+            : (document?.sessionEnded ?? false);
 
     // Derive state from timerEnded and readOnly
     const isWriting = !timerEnded && !readOnly;
@@ -99,6 +103,17 @@ export function WritingApp({
         // Navigate to home to start a new session
         window.location.href = "/";
     }, []);
+
+    const handleEndSession = useCallback(() => {
+        // End unlimited session by marking it as ended
+        if (document && duration === null) {
+            void updateTimer({
+                id: document._id,
+                timerDuration: null,
+                endSession: true,
+            });
+        }
+    }, [document, duration, updateTimer]);
 
     const handleChangeDuration = useCallback(
         (newDuration: number | null) => {
@@ -187,7 +202,11 @@ export function WritingApp({
                             {isWriting && (
                                 <Button
                                     onClick={() =>
-                                        setShowTimerAdjust(!showTimerAdjust)
+                                        duration === null
+                                            ? handleEndSession()
+                                            : setShowTimerAdjust(
+                                                  !showTimerAdjust
+                                              )
                                     }
                                     className={
                                         "text-muted-foreground hover:text-foreground text-sm font-medium transition-colors" +
@@ -227,13 +246,15 @@ export function WritingApp({
                         onEditorReady={setEditor}
                     />
                 </div>
-                {(readOnly || (timerEnded && duration !== null)) && (
+                {(readOnly || timerEnded) && (
                     <div className="bg-muted/50 border-border sticky bottom-0 border-t backdrop-blur-sm">
                         <div className="mx-auto max-w-3xl px-4 py-4 text-center">
                             <p className="text-muted-foreground font-serif italic">
                                 {readOnly
                                     ? "You're viewing this writing in read-only mode."
-                                    : "Time's up. Your thoughts have been captured."}
+                                    : duration === null
+                                      ? "Session ended. Your thoughts have been captured."
+                                      : "Time's up. Your thoughts have been captured."}
                             </p>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ export default defineSchema({
         createdBy: v.string(), // For now just a string, can be linked to users table later when auth is added
         updatedAt: v.number(), // Timestamp for last update
         shared: v.optional(v.boolean()), // Whether the writing is publicly shared
+        sessionEnded: v.optional(v.boolean()), // For unlimited timers, whether session was manually ended
     }),
     users: defineTable({
         name: v.string(),

@@ -126,8 +126,9 @@ export function TimerDisplay({
     ]);
 
     if (duration === null) {
-        const minutes = Math.floor(elapsedTime / 60);
-        const seconds = elapsedTime % 60;
+        const safeElapsedTime = Math.max(0, elapsedTime);
+        const minutes = Math.floor(safeElapsedTime / 60);
+        const seconds = safeElapsedTime % 60;
         return (
             <div className="flex items-center gap-3">
                 <div className="relative flex h-7 w-7 items-center justify-center">

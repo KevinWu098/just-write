@@ -34,6 +34,7 @@ export const create = mutation({
             createdBy: identity.subject,
             updatedAt: Date.now(),
             shared: false,
+            sessionEnded: false,
         });
 
         try {
@@ -153,10 +154,20 @@ export const updateTimer = mutation({
     args: {
         id: v.id("writings"),
         timerDuration: v.union(v.number(), v.null()),
+        endSession: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const writing = await ctx.db.get(args.id);
         if (!writing) return;
+
+        // If ending an unlimited session
+        if (args.endSession && writing.timerDuration === null) {
+            await ctx.db.patch(args.id, {
+                sessionEnded: true,
+                updatedAt: Date.now(),
+            });
+            return;
+        }
 
         // If timer is running, calculate elapsed time and adjust start time
         let newStartTime = writing.timerStartedAt;
