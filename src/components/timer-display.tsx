@@ -125,6 +125,25 @@ export function TimerDisplay({
         calculateCurrentTime,
     ]);
 
+    if (hasEnded) {
+        // Calculate total time elapsed (the full duration that was completed)
+        const totalSeconds = duration ? duration * 60 : 0;
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        return (
+            <div className="flex items-center gap-3">
+                <div className="relative flex h-7 w-7 items-center justify-center">
+                    <span className="text-accent text-2xl">✓</span>
+                </div>
+                <span className="text-muted-foreground font-mono text-xl tabular-nums">
+                    {String(minutes).padStart(2, "0")}:
+                    {String(seconds).padStart(2, "0")}
+                </span>
+            </div>
+        );
+    }
+
     if (duration === null) {
         const safeElapsedTime = Math.max(0, elapsedTime);
         const minutes = Math.floor(safeElapsedTime / 60);

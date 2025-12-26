@@ -79,6 +79,8 @@ export const WritingEditor = memo(function WritingEditor({
             attributes: {
                 class: "outline-none min-h-full text-lg md:text-xl leading-relaxed",
             },
+            scrollThreshold: 200,
+            scrollMargin: 200,
         },
         editable: !isLocked,
         immediatelyRender: false,
