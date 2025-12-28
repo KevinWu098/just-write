@@ -81,8 +81,6 @@ export const WritingEditor = memo(function WritingEditor({
 
     // Helper function to check if cursor is approaching the bottom of the viewport
     const isCursorNearBottom = (editor: Editor): boolean => {
-        if (!isIOS()) return false;
-
         const { view } = editor;
         const { state } = view;
         const { selection } = state;
@@ -96,8 +94,8 @@ export const WritingEditor = memo(function WritingEditor({
         if (container && coords) {
             const containerRect = container.getBoundingClientRect();
             const cursorRelativePosition = coords.top - containerRect.top;
-            // Scroll if cursor is in the bottom 25% of the viewport (before it leaves)
-            const threshold = containerRect.height * 0.33;
+            // Scroll if cursor is in the bottom of the viewport (before it leaves)
+            const threshold = containerRect.height * (isIOS() ? 0.33 : 0.95);
 
             return cursorRelativePosition > threshold;
         }
@@ -110,9 +108,6 @@ export const WritingEditor = memo(function WritingEditor({
         editor: Editor,
         forceScroll: boolean = false
     ) => {
-        // Only scroll on iOS devices
-        if (!isIOS()) return;
-
         // If not forcing scroll, check if cursor is near the bottom of viewport
         if (!forceScroll && !isCursorNearBottom(editor)) return;
 
@@ -132,7 +127,7 @@ export const WritingEditor = memo(function WritingEditor({
                 const containerRect = container.getBoundingClientRect();
                 const scrollTop = container.scrollTop;
 
-                // Calculate the position to scroll to (position cursor at 1/3 from top for more aggressive scrolling)
+                // Calculate the position to scroll to (position cursor at 40% from top)
                 const targetScrollTop =
                     coords.top -
                     containerRect.top +
@@ -211,7 +206,7 @@ export const WritingEditor = memo(function WritingEditor({
                 <div className="flex h-full max-h-full overflow-auto">
                     <div
                         className={cn(
-                            "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
+                            "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text",
                             isLocked && "cursor-not-allowed"
                         )}
                         onClick={() => {
@@ -224,7 +219,7 @@ export const WritingEditor = memo(function WritingEditor({
                         <EditorContent
                             editor={editor}
                             className={cn(
-                                "min-h-full",
+                                "min-h-full p-4 md:pb-16",
                                 isLocked &&
                                     "cursor-not-allowed opacity-75 select-none"
                             )}
