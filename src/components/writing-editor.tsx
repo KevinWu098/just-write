@@ -149,7 +149,10 @@ export const WritingEditor = memo(function WritingEditor({
         content: initialContent ?? { type: "doc", content: [] },
         editorProps: {
             attributes: {
-                class: "outline-none min-h-full text-lg md:text-xl leading-relaxed input--focused",
+                class: cn(
+                    "min-h-full text-lg leading-relaxed outline-none md:text-xl",
+                    isIOS() && "input--focused"
+                ),
             },
         },
         editable: !isLocked,
@@ -207,8 +210,9 @@ export const WritingEditor = memo(function WritingEditor({
                 <div className="flex h-full max-h-full overflow-auto">
                     <div
                         className={cn(
-                            "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text",
-                            isLocked && "cursor-not-allowed"
+                            "mx-auto w-full max-w-3xl flex-1 cursor-text",
+                            isLocked && "cursor-not-allowed",
+                            isIOS() && "input--focused"
                         )}
                         onClick={(e) => {
                             if (!isLocked && e.target === e.currentTarget) {
