@@ -209,8 +209,9 @@ export const WritingEditor = memo(function WritingEditor({
                             "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text",
                             isLocked && "cursor-not-allowed"
                         )}
-                        onClick={() => {
-                            if (!isLocked) {
+                        onClick={(e) => {
+                            // Only focus if clicking on the div itself (not the padding area)
+                            if (!isLocked && e.target === e.currentTarget) {
                                 editor.commands.focus();
                                 scrollCursorIntoView(editor, true); // Force scroll on manual focus
                             }
