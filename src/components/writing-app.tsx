@@ -12,7 +12,7 @@ import { ArrowLeftIcon, EllipsisIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimerAdjust } from "@/components/timer-adjust";
 import { TimerDisplay } from "@/components/timer-display";
-import { WritingEditor } from "@/components/writing-editor";
+import { WritingEditor } from "@/components/writing-editor/writing-editor";
 
 type Writing = {
     _id: Id<"writings">;
@@ -151,7 +151,7 @@ export function WritingApp({
     return (
         <>
             <div className="flex h-dvh min-h-dvh flex-col">
-                <header className="bg-background/80 border-border h-12 border-b backdrop-blur-sm">
+                <header className="bg-background/80 border-border box-border h-12 border-b backdrop-blur-sm">
                     <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-2">
                         <div className="flex items-center gap-4">
                             <Link

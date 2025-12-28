@@ -28,7 +28,7 @@ export function EditorToolbar({ editor, isLocked }: EditorToolbarProps) {
     }
 
     return (
-        <div className="border-border bg-background/80 w-full border-b backdrop-blur-sm">
+        <div className="border-border bg-background/80 box-border h-12 w-full border-b backdrop-blur-sm">
             <div className="mx-auto flex max-w-3xl items-center gap-1 overflow-x-auto px-4 py-2">
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
