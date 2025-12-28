@@ -95,7 +95,7 @@ export const WritingEditor = memo(function WritingEditor({
             const containerRect = container.getBoundingClientRect();
             const cursorRelativePosition = coords.top - containerRect.top;
             // Scroll if cursor is in the bottom of the viewport (before it leaves)
-            const threshold = containerRect.height * (isIOS() ? 0.33 : 0.95);
+            const threshold = containerRect.height * 0.75;
 
             return cursorRelativePosition > threshold;
         }
@@ -127,12 +127,12 @@ export const WritingEditor = memo(function WritingEditor({
                 const containerRect = container.getBoundingClientRect();
                 const scrollTop = container.scrollTop;
 
-                // Calculate the position to scroll to (position cursor at 40% from top)
+                // Calculate the position to scroll to
                 const targetScrollTop =
                     coords.top -
                     containerRect.top +
                     scrollTop -
-                    containerRect.height / 3;
+                    containerRect.height * (isIOS() ? 0.33 : 0.85);
 
                 container.scrollTo({
                     top: targetScrollTop,
@@ -156,13 +156,14 @@ export const WritingEditor = memo(function WritingEditor({
         immediatelyRender: false,
         onCreate: ({ editor }) => {
             editor.commands.focus("start");
-            scrollCursorIntoView(editor, true); // Force scroll on initial focus
             if (onEditorReady) {
                 onEditorReady(editor);
             }
         },
+        onFocus: ({ editor }) => {
+            scrollCursorIntoView(editor, true);
+        },
         onUpdate: ({ editor }) => {
-            // On iOS, scroll cursor into view if it's below 50% height
             scrollCursorIntoView(editor);
 
             if (onContentChange) {
@@ -210,17 +211,15 @@ export const WritingEditor = memo(function WritingEditor({
                             isLocked && "cursor-not-allowed"
                         )}
                         onClick={(e) => {
-                            // Only focus if clicking on the div itself (not the padding area)
                             if (!isLocked && e.target === e.currentTarget) {
                                 editor.commands.focus();
-                                scrollCursorIntoView(editor, true); // Force scroll on manual focus
                             }
                         }}
                     >
                         <EditorContent
                             editor={editor}
                             className={cn(
-                                "min-h-full p-4 md:pb-16",
+                                "min-h-full w-full p-4 md:pb-16",
                                 isLocked &&
                                     "cursor-not-allowed opacity-75 select-none"
                             )}
