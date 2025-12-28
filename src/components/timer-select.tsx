@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const DURATIONS = [5, 10, 15, 20, 30, null] as const;
+const DURATIONS = [1, 5, 10, 15, 20, 30, null] as const;
 const PENDING_WRITING_KEY = "pendingWritingTimer";
 
 export function TimerSelect() {
@@ -25,10 +25,14 @@ export function TimerSelect() {
 
     // Check for pending writing on mount after auth loads
     useEffect(() => {
-        if (!isLoaded || !isSignedIn) return;
+        if (!isLoaded || !isSignedIn) {
+            return;
+        }
 
         const pendingTimer = sessionStorage.getItem(PENDING_WRITING_KEY);
-        if (!pendingTimer) return;
+        if (!pendingTimer) {
+            return;
+        }
 
         // Clear immediately to prevent re-triggering
         sessionStorage.removeItem(PENDING_WRITING_KEY);

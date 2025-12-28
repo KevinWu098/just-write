@@ -54,13 +54,18 @@ export function WritingApp({
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
     const [editor, setEditor] = useState<Editor | null>(null);
-    const [currentTime, setCurrentTime] = useState(() => Date.now());
+    const [timerEnded, setTimerEnded] = useState(() => {
+        if (
+            document &&
+            document.timerStartedAt &&
+            document.timerDuration !== null
+        ) {
+            const elapsed = (Date.now() - document.timerStartedAt) / 1000;
+            return elapsed >= document.timerDuration * 60;
+        }
+        return document?.sessionEnded ?? false;
+    });
 
-    const timerEnded =
-        document && document.timerStartedAt && document.timerDuration !== null
-            ? (currentTime - document.timerStartedAt) / 1000 >=
-              document.timerDuration * 60
-            : (document?.sessionEnded ?? false);
     const isWriting = !timerEnded && !readOnly;
     const isLocked = readOnly || timerEnded;
 
@@ -69,14 +74,6 @@ export function WritingApp({
             void startTimer({ id: document._id });
         }
     }, [document, startTimer, readOnly]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTime(Date.now());
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     // Update word count when editor content changes
     useEffect(() => {
@@ -97,6 +94,10 @@ export function WritingApp({
             };
         }
     }, [editor]);
+
+    const handleTimerEnd = useCallback(() => {
+        setTimerEnded(true);
+    }, []);
 
     const handleEndSession = useCallback(() => {
         if (document && duration === null) {
@@ -154,6 +155,7 @@ export function WritingApp({
                                 duration={duration}
                                 startedAt={document?.timerStartedAt ?? null}
                                 isRunning={!timerEnded}
+                                onTimerEnd={handleTimerEnd}
                             />
                         </div>
                         <div className="flex items-center gap-4">

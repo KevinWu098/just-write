@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 
 import type { Editor, Extensions } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -41,7 +41,7 @@ export const WritingEditor = memo(function WritingEditor({
         editable: !isLocked,
         immediatelyRender: false,
         onCreate: ({ editor }) => {
-            if (isIOS()) {
+            if (!isIOS()) {
                 editor.commands.focus("start");
             }
             if (onEditorReady) {
@@ -64,6 +64,12 @@ export const WritingEditor = memo(function WritingEditor({
             }
         },
     });
+
+    useEffect(() => {
+        if (editor) {
+            editor.setEditable(!isLocked);
+        }
+    }, [editor, isLocked]);
 
     if (!editor) {
         return null;
@@ -92,7 +98,7 @@ export const WritingEditor = memo(function WritingEditor({
                         <EditorContent
                             editor={editor}
                             className={cn(
-                                "min-h-full w-full p-4 md:pb-16",
+                                "h-full min-h-full w-full p-4 md:pb-16",
                                 isLocked &&
                                     "cursor-not-allowed opacity-75 select-none"
                             )}

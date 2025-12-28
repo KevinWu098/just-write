@@ -8,12 +8,14 @@ interface TimerDisplayProps {
     duration: number | null;
     startedAt: number | null;
     isRunning: boolean;
+    onTimerEnd: () => void;
 }
 
 export function TimerDisplay({
     duration,
     startedAt,
     isRunning,
+    onTimerEnd,
 }: TimerDisplayProps) {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const localStartTimeRef = useRef<number | null>(null);
@@ -67,6 +69,12 @@ export function TimerDisplay({
     });
 
     useEffect(() => {
+        if (hasEnded && onTimerEnd) {
+            onTimerEnd();
+        }
+    }, [hasEnded, onTimerEnd]);
+
+    useEffect(() => {
         if (!isRunning || hasEnded) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
@@ -101,6 +109,7 @@ export function TimerDisplay({
                         clearInterval(intervalRef.current);
                     }
                     setHasEnded(true);
+                    onTimerEnd();
                 }
             }
         }, 1000);
@@ -110,7 +119,14 @@ export function TimerDisplay({
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isRunning, hasEnded, startedAt, duration, calculateCurrentTime]);
+    }, [
+        isRunning,
+        hasEnded,
+        startedAt,
+        duration,
+        calculateCurrentTime,
+        onTimerEnd,
+    ]);
 
     if (hasEnded) {
         // Calculate total time elapsed (the full duration that was completed)
