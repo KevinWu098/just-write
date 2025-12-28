@@ -133,7 +133,7 @@ export function TimerDisplay({
 
         return (
             <div className="flex items-center gap-3">
-                <div className="relative flex h-7 w-7 items-center justify-center">
+                <div className="relative flex size-8 items-center justify-center">
                     <span className="text-accent text-2xl">✓</span>
                 </div>
                 <span className="text-muted-foreground font-mono text-xl tabular-nums">
@@ -150,7 +150,7 @@ export function TimerDisplay({
         const seconds = safeElapsedTime % 60;
         return (
             <div className="flex items-center gap-3">
-                <div className="relative flex h-7 w-7 items-center justify-center">
+                <div className="relative flex size-8 items-center justify-center">
                     <span className="text-accent text-2xl">∞</span>
                 </div>
                 <span className="text-muted-foreground font-mono text-xl tabular-nums">
@@ -168,9 +168,9 @@ export function TimerDisplay({
 
     return (
         <div className="flex items-center gap-3">
-            <div className={cn("relative h-7 w-7")}>
+            <div className={cn("relative size-8")}>
                 <svg
-                    className="h-7 w-7 -rotate-90 transition-all duration-1000 ease-in-out"
+                    className="size-8 -rotate-90 transition-all duration-1000 ease-in-out"
                     viewBox="0 0 36 36"
                 >
                     <circle

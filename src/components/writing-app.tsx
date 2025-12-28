@@ -150,9 +150,9 @@ export function WritingApp({
 
     return (
         <>
-            <div className="flex h-dvh flex-col">
-                <header className="bg-background/80 border-border h-13 border-b backdrop-blur-sm">
-                    <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+            <div className="flex h-dvh min-h-dvh flex-col">
+                <header className="bg-background/80 border-border h-12 border-b backdrop-blur-sm">
+                    <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-2">
                         <div className="flex items-center gap-4">
                             <Link
                                 href={readOnly ? "/" : "/writings"}

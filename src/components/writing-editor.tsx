@@ -7,7 +7,6 @@ import Typography from "@tiptap/extension-typography";
 import type { Editor, Extensions } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { EllipsisIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -85,7 +84,7 @@ export const WritingEditor = memo(function WritingEditor({
         editable: !isLocked,
         immediatelyRender: false,
         onCreate: ({ editor }) => {
-            editor.commands.focus("end");
+            editor.commands.focus("start");
             if (onEditorReady) {
                 onEditorReady(editor);
             }
@@ -120,36 +119,41 @@ export const WritingEditor = memo(function WritingEditor({
     }
 
     return (
-        <div className="flex h-full max-h-full flex-col overflow-auto">
-            <div className="sticky top-0 z-10">
+        <div className="flex h-[calc(100dvh-49px)] min-h-[calc(100dvh-49px)] flex-col">
+            <div className="h-12">
                 <EditorToolbar
                     editor={editor}
                     isLocked={isLocked}
                 />
             </div>
 
-            <div
-                className={cn(
-                    "mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
-                    isLocked && "cursor-not-allowed"
-                )}
-                onClick={() => {
-                    if (!isLocked) {
-                        editor.commands.focus();
-                    }
-                }}
-            >
-                <EditorContent
-                    editor={editor}
-                    className={cn(
-                        "min-h-full",
-                        isLocked && "cursor-not-allowed opacity-75 select-none"
-                    )}
-                    style={{
-                        fontFeatureSettings: "'liga' 1, 'calt' 1",
-                        WebkitFontSmoothing: "antialiased",
-                    }}
-                />
+            <div className="relative h-0 grow">
+                <div className="flex max-h-full overflow-auto">
+                    <div
+                        className={cn(
+                            "mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
+                            isLocked && "cursor-not-allowed"
+                        )}
+                        onClick={() => {
+                            if (!isLocked) {
+                                editor.commands.focus();
+                            }
+                        }}
+                    >
+                        <EditorContent
+                            editor={editor}
+                            className={cn(
+                                "min-h-full",
+                                isLocked &&
+                                    "cursor-not-allowed opacity-75 select-none"
+                            )}
+                            style={{
+                                fontFeatureSettings: "'liga' 1, 'calt' 1",
+                                WebkitFontSmoothing: "antialiased",
+                            }}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );

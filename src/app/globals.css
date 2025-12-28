@@ -95,7 +95,7 @@
 
     /* Added Tiptap ProseMirror editor styles for proper heading and list rendering */
     .ProseMirror {
-        @apply min-h-full outline-none;
+        @apply min-h-full min-w-px outline-none;
     }
 
     .ProseMirror p.is-editor-empty:first-child::before {
