@@ -69,6 +69,84 @@ export const WritingEditor = memo(function WritingEditor({
     syncExtension,
     onEditorReady,
 }: WritingEditorProps) {
+    // Check if running on iOS
+    const isIOS = () => {
+        return (
+            typeof window !== "undefined" &&
+            (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === "MacIntel" &&
+                    navigator.maxTouchPoints > 1))
+        );
+    };
+
+    // Helper function to check if cursor is approaching the bottom of the viewport
+    const isCursorNearBottom = (editor: Editor): boolean => {
+        if (!isIOS()) return false;
+
+        const { view } = editor;
+        const { state } = view;
+        const { selection } = state;
+
+        // Get the DOM coordinates of the cursor
+        const coords = view.coordsAtPos(selection.from);
+
+        // Find the scrollable container
+        const container = view.dom.closest(".overflow-auto");
+
+        if (container && coords) {
+            const containerRect = container.getBoundingClientRect();
+            const cursorRelativePosition = coords.top - containerRect.top;
+            // Scroll if cursor is in the bottom 25% of the viewport (before it leaves)
+            const threshold = containerRect.height * 0.33;
+
+            return cursorRelativePosition > threshold;
+        }
+
+        return false;
+    };
+
+    // Helper function to scroll cursor into view smoothly
+    const scrollCursorIntoView = (
+        editor: Editor,
+        forceScroll: boolean = false
+    ) => {
+        // Only scroll on iOS devices
+        if (!isIOS()) return;
+
+        // If not forcing scroll, check if cursor is near the bottom of viewport
+        if (!forceScroll && !isCursorNearBottom(editor)) return;
+
+        // Wait for the opacity animation to complete (0.01s)
+        setTimeout(() => {
+            const { view } = editor;
+            const { state } = view;
+            const { selection } = state;
+
+            // Get the DOM coordinates of the cursor
+            const coords = view.coordsAtPos(selection.from);
+
+            // Find the scrollable container
+            const container = view.dom.closest(".overflow-auto");
+
+            if (container && coords) {
+                const containerRect = container.getBoundingClientRect();
+                const scrollTop = container.scrollTop;
+
+                // Calculate the position to scroll to (position cursor at 1/3 from top for more aggressive scrolling)
+                const targetScrollTop =
+                    coords.top -
+                    containerRect.top +
+                    scrollTop -
+                    containerRect.height / 3;
+
+                container.scrollTo({
+                    top: targetScrollTop,
+                    behavior: "auto",
+                });
+            }
+        }, 20); // Slightly longer than the 0.01s animation
+    };
+
     const editor = useEditor({
         extensions: syncExtension
             ? [...editorExtensions, syncExtension]
@@ -76,20 +154,22 @@ export const WritingEditor = memo(function WritingEditor({
         content: initialContent ?? { type: "doc", content: [] },
         editorProps: {
             attributes: {
-                class: "outline-none min-h-full text-lg md:text-xl leading-relaxed",
+                class: "outline-none min-h-full text-lg md:text-xl leading-relaxed input--focused",
             },
-            scrollThreshold: 200,
-            scrollMargin: 200,
         },
         editable: !isLocked,
         immediatelyRender: false,
         onCreate: ({ editor }) => {
             editor.commands.focus("start");
+            scrollCursorIntoView(editor, true); // Force scroll on initial focus
             if (onEditorReady) {
                 onEditorReady(editor);
             }
         },
         onUpdate: ({ editor }) => {
+            // On iOS, scroll cursor into view if it's below 50% height
+            scrollCursorIntoView(editor);
+
             if (onContentChange) {
                 const json = editor.getJSON();
                 const text = editor.getText();
@@ -131,12 +211,13 @@ export const WritingEditor = memo(function WritingEditor({
                 <div className="flex max-h-full overflow-auto">
                     <div
                         className={cn(
-                            "mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
+                            "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",
                             isLocked && "cursor-not-allowed"
                         )}
                         onClick={() => {
                             if (!isLocked) {
                                 editor.commands.focus();
+                                scrollCursorIntoView(editor, true); // Force scroll on manual focus
                             }
                         }}
                     >
