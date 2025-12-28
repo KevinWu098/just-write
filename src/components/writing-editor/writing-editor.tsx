@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 
 import type { Editor, Extensions } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -25,6 +25,8 @@ export const WritingEditor = memo(function WritingEditor({
     syncExtension,
     onEditorReady,
 }: WritingEditorProps) {
+    const isIos = useMemo(() => isIOS(), []);
+
     const editor = useEditor({
         extensions: syncExtension
             ? [...writingEditorExtensions, syncExtension]
@@ -41,9 +43,6 @@ export const WritingEditor = memo(function WritingEditor({
         editable: !isLocked,
         immediatelyRender: false,
         onCreate: ({ editor }) => {
-            if (!isIOS()) {
-                editor.commands.focus("start");
-            }
             if (onEditorReady) {
                 onEditorReady(editor);
             }
@@ -64,6 +63,16 @@ export const WritingEditor = memo(function WritingEditor({
             }
         },
     });
+
+    useEffect(() => {
+        if (editor && !isIos && !isLocked) {
+            editor.commands.focus("start");
+            queueMicrotask(() => {
+                const pos = editor.state.doc.content.size;
+                editor.commands.setTextSelection({ from: pos, to: pos });
+            });
+        }
+    }, [editor, isIos, isLocked]);
 
     useEffect(() => {
         if (editor) {
