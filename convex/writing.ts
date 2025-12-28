@@ -111,13 +111,15 @@ export const list = query({
                     // Extract text from ProseMirror document
                     if (snapshot.content) {
                         const doc = JSON.parse(snapshot.content);
+
                         const extractText = (node: any): string => {
                             if (node.text) {
                                 return node.text;
                             }
+
                             if (node.content && Array.isArray(node.content)) {
                                 return node.content
-                                    .map((child: any) => extractText(child))
+                                    .map((child: unknown) => extractText(child))
                                     .join(" ");
                             }
                             return "";
@@ -130,8 +132,7 @@ export const list = query({
                         ...writing,
                         textPreview: textPreview || null,
                     };
-                } catch (error) {
-                    // If there's an error fetching the snapshot, just return without preview
+                } catch {
                     return {
                         ...writing,
                         textPreview: null,
@@ -165,7 +166,9 @@ export const updateTimer = mutation({
     },
     handler: async (ctx, args) => {
         const writing = await ctx.db.get(args.id);
-        if (!writing) return;
+        if (!writing) {
+            return;
+        }
 
         // If ending an unlimited session
         if (args.endSession && writing.timerDuration === null) {

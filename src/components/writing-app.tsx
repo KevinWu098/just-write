@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
+import type { Editor } from "@tiptap/react";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
@@ -37,9 +39,12 @@ export function WritingApp({
     readOnly = false,
     isAuthenticated = true,
 }: WritingAppProps) {
-    const updateTimer = useMutation(api.writing.updateTimer);
+    const router = useRouter();
     const startTimer = useMutation(api.writing.startTimer);
+    const updateTimer = useMutation(api.writing.updateTimer);
+
     const sync = useTiptapSync(api.writing, id);
+
     const [duration, setDuration] = useState<number | null>(() => {
         if (document?.timerDuration !== undefined) {
             return document.timerDuration;
@@ -48,32 +53,30 @@ export function WritingApp({
     });
     const [wordCount, setWordCount] = useState(0);
     const [showTimerAdjust, setShowTimerAdjust] = useState(false);
-    const [editor, setEditor] = useState<any>(null);
+    const [editor, setEditor] = useState<Editor | null>(null);
+    const [currentTime, setCurrentTime] = useState(() => Date.now());
 
-    // Derive timer ended state from document data
     const timerEnded =
         document && document.timerStartedAt && document.timerDuration !== null
-            ? (Date.now() - document.timerStartedAt) / 1000 >=
+            ? (currentTime - document.timerStartedAt) / 1000 >=
               document.timerDuration * 60
             : (document?.sessionEnded ?? false);
-
-    // Derive state from timerEnded and readOnly
     const isWriting = !timerEnded && !readOnly;
     const isLocked = readOnly || timerEnded;
 
-    // Start the timer immediately when document loads (not in read-only mode)
     useEffect(() => {
         if (document && !document.timerStartedAt && !readOnly) {
             void startTimer({ id: document._id });
         }
     }, [document, startTimer, readOnly]);
 
-    // Update duration when document changes
     useEffect(() => {
-        if (document) {
-            setDuration(document.timerDuration);
-        }
-    }, [document?.timerDuration]);
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     // Update word count when editor content changes
     useEffect(() => {
@@ -95,17 +98,7 @@ export function WritingApp({
         }
     }, [editor]);
 
-    const handleTimerEnd = useCallback(() => {
-        // Timer ended - no need to set state, it's derived
-    }, []);
-
-    const handleReset = useCallback(() => {
-        // Navigate to home to start a new session
-        window.location.href = "/";
-    }, []);
-
     const handleEndSession = useCallback(() => {
-        // End unlimited session by marking it as ended
         if (document && duration === null) {
             void updateTimer({
                 id: document._id,
@@ -130,14 +123,6 @@ export function WritingApp({
         [document, updateTimer]
     );
 
-    // Set editor editability based on locked state
-    useEffect(() => {
-        if (editor) {
-            editor.setEditable(!isLocked);
-        }
-    }, [editor, isLocked]);
-
-    // Handle loading state
     if (sync.isLoading || !sync.extension) {
         return (
             <main className="bg-background flex min-h-dvh flex-col items-center justify-center">
@@ -169,7 +154,6 @@ export function WritingApp({
                                 duration={duration}
                                 startedAt={document?.timerStartedAt ?? null}
                                 isRunning={!timerEnded}
-                                onTimerEnd={handleTimerEnd}
                             />
                         </div>
                         <div className="flex items-center gap-4">
@@ -207,7 +191,7 @@ export function WritingApp({
                             )}
                             {!readOnly && isLocked && (
                                 <Button
-                                    onClick={handleReset}
+                                    onClick={() => router.push("/")}
                                     className="text-accent hover:text-accent text-sm font-medium transition-colors"
                                 >
                                     New Session

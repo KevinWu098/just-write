@@ -8,34 +8,23 @@ interface TimerDisplayProps {
     duration: number | null;
     startedAt: number | null;
     isRunning: boolean;
-    onTimerEnd: () => void;
-    onTimeUpdate?: (timeInSeconds: number) => void;
 }
 
 export function TimerDisplay({
     duration,
     startedAt,
     isRunning,
-    onTimerEnd,
-    onTimeUpdate,
 }: TimerDisplayProps) {
-    const [timeLeft, setTimeLeft] = useState(duration ? duration * 60 : 0);
-    const [elapsedTime, setElapsedTime] = useState(0);
-    const [hasEnded, setHasEnded] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const localStartTimeRef = useRef<number | null>(null);
 
     // Calculate current time based on startedAt (or local start time)
     const calculateCurrentTime = useCallback(() => {
         // Use server time if available, otherwise use local start time
-        const effectiveStartTime = startedAt || localStartTimeRef.current;
+        const effectiveStartTime = startedAt ?? localStartTimeRef.current;
 
         if (!effectiveStartTime) {
-            // Timer hasn't started yet
-            if (duration !== null) {
-                return { timeLeft: duration * 60, elapsedTime: 0 };
-            }
-            return { timeLeft: 0, elapsedTime: 0 };
+            return { timeLeft: duration ? duration * 60 : 0, elapsedTime: 0 };
         }
 
         const elapsed = Math.floor((Date.now() - effectiveStartTime) / 1000);
@@ -51,21 +40,31 @@ export function TimerDisplay({
         }
     }, [startedAt, duration]);
 
-    // Initialize and update time based on startedAt
-    useEffect(() => {
-        const { timeLeft: newTimeLeft, elapsedTime: newElapsedTime } =
-            calculateCurrentTime();
-        setTimeLeft(newTimeLeft);
-        setElapsedTime(newElapsedTime);
-        const shouldEnd =
-            newTimeLeft === 0 && duration !== null && startedAt !== null;
-        setHasEnded(shouldEnd);
-
-        // If timer has already ended when component loads, call onTimerEnd
-        if (shouldEnd && !hasEnded) {
-            onTimerEnd();
+    // Initialize state with lazy initializers
+    const [timeLeft, setTimeLeft] = useState(() => {
+        if (!startedAt || duration === null) {
+            return duration ? duration * 60 : 0;
         }
-    }, [startedAt, duration, calculateCurrentTime, hasEnded, onTimerEnd]);
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const totalSeconds = duration * 60;
+        return Math.max(0, totalSeconds - elapsed);
+    });
+
+    const [elapsedTime, setElapsedTime] = useState(() => {
+        if (!startedAt) {
+            return 0;
+        }
+        return Math.floor((Date.now() - startedAt) / 1000);
+    });
+
+    const [hasEnded, setHasEnded] = useState(() => {
+        if (!startedAt || duration === null) {
+            return false;
+        }
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const totalSeconds = duration * 60;
+        return elapsed >= totalSeconds;
+    });
 
     useEffect(() => {
         if (!isRunning || hasEnded) {
@@ -102,11 +101,7 @@ export function TimerDisplay({
                         clearInterval(intervalRef.current);
                     }
                     setHasEnded(true);
-                    onTimerEnd();
                 }
-
-                // Update parent with remaining time in seconds
-                onTimeUpdate?.(newTimeLeft);
             }
         }, 1000);
 
@@ -115,15 +110,7 @@ export function TimerDisplay({
                 clearInterval(intervalRef.current);
             }
         };
-    }, [
-        isRunning,
-        hasEnded,
-        startedAt,
-        duration,
-        onTimerEnd,
-        onTimeUpdate,
-        calculateCurrentTime,
-    ]);
+    }, [isRunning, hasEnded, startedAt, duration, calculateCurrentTime]);
 
     if (hasEnded) {
         // Calculate total time elapsed (the full duration that was completed)
