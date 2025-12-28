@@ -116,25 +116,18 @@ export const WritingEditor = memo(function WritingEditor({
     }, [isLocked, editor]);
 
     if (!editor) {
-        return (
-            <div className="flex flex-1 flex-col">
-                <div className="bg-background/80 border-border sticky top-[53px] z-10 border-b backdrop-blur-sm">
-                    <div className="mx-auto max-w-3xl px-4 py-2">
-                        <div className="h-9" />
-                    </div>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     return (
-        <div className="flex w-full flex-1 flex-col">
-            <div className="sticky top-[53px] z-10">
+        <div className="flex h-full max-h-full flex-col overflow-auto">
+            <div className="sticky top-0 z-10">
                 <EditorToolbar
                     editor={editor}
                     isLocked={isLocked}
                 />
             </div>
+
             <div
                 className={cn(
                     "mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",

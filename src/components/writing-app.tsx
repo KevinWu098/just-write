@@ -149,9 +149,9 @@ export function WritingApp({
     }
 
     return (
-        <main className="bg-background flex min-h-dvh flex-col">
-            <div className="flex flex-1 flex-col">
-                <header className="bg-background/80 border-border sticky top-0 z-10 border-b backdrop-blur-sm">
+        <>
+            <div className="flex h-dvh flex-col">
+                <header className="bg-background/80 border-border h-13 border-b backdrop-blur-sm">
                     <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
                         <div className="flex items-center gap-4">
                             <Link
@@ -216,7 +216,8 @@ export function WritingApp({
                         </div>
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col">
+
+                <div className="relative h-0 grow">
                     <WritingEditor
                         isLocked={isLocked}
                         initialContent={sync.initialContent}
@@ -224,6 +225,7 @@ export function WritingApp({
                         onEditorReady={setEditor}
                     />
                 </div>
+
                 {(readOnly || timerEnded) && (
                     <div className="bg-muted/50 border-border sticky bottom-0 border-t backdrop-blur-sm">
                         <div className="mx-auto max-w-3xl px-4 py-4 text-center">
@@ -238,6 +240,7 @@ export function WritingApp({
                     </div>
                 )}
             </div>
+
             {isWriting && (
                 <TimerAdjust
                     open={showTimerAdjust}
@@ -246,6 +249,6 @@ export function WritingApp({
                     onCancel={() => setShowTimerAdjust(false)}
                 />
             )}
-        </main>
+        </>
     );
 }
