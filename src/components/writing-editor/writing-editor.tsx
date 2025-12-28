@@ -109,7 +109,7 @@ export const WritingEditor = memo(function WritingEditor({
                         <EditorContent
                             editor={editor}
                             className={cn(
-                                "h-full min-h-full w-full p-4 md:pb-16",
+                                "h-fit min-h-full w-full p-4 md:pb-16",
                                 isLocked &&
                                     "cursor-not-allowed opacity-75 select-none"
                             )}
