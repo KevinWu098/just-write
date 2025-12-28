@@ -48,7 +48,9 @@ export const WritingEditor = memo(function WritingEditor({
             }
         },
         onFocus: ({ editor }) => {
-            scrollCursorIntoView(editor, true);
+            if (isIos) {
+                scrollCursorIntoView(editor, true);
+            }
         },
         onUpdate: ({ editor }) => {
             scrollCursorIntoView(editor);
