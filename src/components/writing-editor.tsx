@@ -158,7 +158,9 @@ export const WritingEditor = memo(function WritingEditor({
         editable: !isLocked,
         immediatelyRender: false,
         onCreate: ({ editor }) => {
-            editor.commands.focus("start");
+            if (isIOS()) {
+                editor.commands.focus("start");
+            }
             if (onEditorReady) {
                 onEditorReady(editor);
             }
