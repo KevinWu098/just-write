@@ -208,7 +208,7 @@ export const WritingEditor = memo(function WritingEditor({
             </div>
 
             <div className="relative h-0 grow">
-                <div className="flex max-h-full overflow-auto">
+                <div className="flex h-full max-h-full overflow-auto">
                     <div
                         className={cn(
                             "input--focused mx-auto w-full max-w-3xl flex-1 cursor-text p-4 md:p-6 lg:p-8",

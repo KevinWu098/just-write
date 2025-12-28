@@ -154,7 +154,7 @@ function WritingsListContent() {
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 space-y-1 overflow-hidden">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-foreground truncate font-medium">
+                                    <h2 className="text-foreground max-w-md truncate font-medium">
                                         {textPreview}
                                     </h2>
                                     {isTimerRunning && (
