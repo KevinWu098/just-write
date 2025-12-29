@@ -7,6 +7,7 @@ import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { Authenticated, useMutation, useQuery } from "convex/react";
 import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import {
     AlertDialog,
@@ -48,6 +49,7 @@ function WritingsListContent() {
         if (!isCurrentlyShared) {
             // Enable sharing
             await toggleSharing({ id: writingId, shared: true });
+            toast.success("Writing shared");
         }
 
         // Copy link to clipboard
@@ -58,6 +60,7 @@ function WritingsListContent() {
             setTimeout(() => setCopiedId(null), 2000);
         } catch (err) {
             console.error("Failed to copy:", err);
+            toast.error("Failed to copy link");
         }
     };
 
@@ -69,6 +72,7 @@ function WritingsListContent() {
         e.preventDefault();
         e.stopPropagation();
         await toggleSharing({ id: writingId, shared });
+        toast.success("Writing made private");
     };
 
     const handleDeleteClick = async (
@@ -81,6 +85,7 @@ function WritingsListContent() {
         // Skip confirmation if Control key is held
         if (e.ctrlKey || e.metaKey) {
             await deleteWriting({ id: writingId });
+            toast.success("Writing deleted");
             return;
         }
 
@@ -91,6 +96,7 @@ function WritingsListContent() {
     const handleDeleteConfirm = async () => {
         if (writingToDelete) {
             await deleteWriting({ id: writingToDelete });
+            toast.success("Writing deleted");
             setDeleteDialogOpen(false);
             setWritingToDelete(null);
         }
