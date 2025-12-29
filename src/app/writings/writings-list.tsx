@@ -168,6 +168,11 @@ function WritingsListContent() {
                                             Active
                                         </span>
                                     )}
+                                    {writing.shared && (
+                                        <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">
+                                            Shared
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="flex flex-col gap-2 text-sm md:flex-row md:items-center">
