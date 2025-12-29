@@ -16,6 +16,7 @@ interface WritingEditorProps {
     onContentChange?: (content: unknown, wordCount: number) => void;
     syncExtension?: Extensions[number];
     onEditorReady?: (editor: Editor) => void;
+    hasFooter?: boolean;
 }
 
 export const WritingEditor = memo(function WritingEditor({
@@ -24,6 +25,7 @@ export const WritingEditor = memo(function WritingEditor({
     onContentChange,
     syncExtension,
     onEditorReady,
+    hasFooter,
 }: WritingEditorProps) {
     const isIos = useMemo(() => isIOS(), []);
 
@@ -109,7 +111,8 @@ export const WritingEditor = memo(function WritingEditor({
                         <EditorContent
                             editor={editor}
                             className={cn(
-                                "h-fit min-h-full w-full p-4 md:pb-16",
+                                "h-fit min-h-full w-full p-4",
+                                hasFooter ? "pb-16 md:pb-16" : "md:pb-16",
                                 isLocked &&
                                     "cursor-not-allowed opacity-75 select-none"
                             )}

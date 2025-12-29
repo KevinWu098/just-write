@@ -209,6 +209,7 @@ export function WritingApp({
                         initialContent={sync.initialContent}
                         syncExtension={sync.extension}
                         onEditorReady={setEditor}
+                        hasFooter={readOnly || timerEnded}
                     />
                 </div>
 
