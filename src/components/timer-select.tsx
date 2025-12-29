@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const DURATIONS = [1, 5, 10, 15, 20, 30, null] as const;
+const DURATIONS = [5, 10, 15, 20, 30, null] as const;
 const PENDING_WRITING_KEY = "pendingWritingTimer";
 
 export function TimerSelect() {
@@ -93,7 +93,7 @@ export function TimerSelect() {
                                 "h-14 w-14 rounded-lg text-lg font-medium transition-all hover:duration-0",
                                 "border-border hover:border-accent/50 border",
                                 selectedDuration === duration
-                                    ? "bg-primary text-primary-foreground border-primary"
+                                    ? "bg-accent text-accent-foreground border-accent"
                                     : "bg-card text-foreground hover:bg-secondary"
                             )}
                         >
@@ -118,7 +118,7 @@ export function TimerSelect() {
                 <Button
                     onClick={handleStart}
                     disabled={isPending || !isLoaded}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg py-3 text-lg font-medium transition-colors disabled:opacity-50"
+                    className="bg-accent text-primary-foreground hover:bg-accent/90 w-full rounded-lg py-3 text-lg font-medium transition-colors disabled:opacity-50"
                 >
                     {isPending ? "Creating..." : "Begin"}
                 </Button>

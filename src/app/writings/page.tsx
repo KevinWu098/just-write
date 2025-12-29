@@ -11,7 +11,7 @@ export default async function Page() {
     const user = await currentUser();
 
     const displayName =
-        user?.firstName || user?.emailAddresses[0]?.emailAddress || "User";
+        user?.firstName ?? user?.emailAddresses[0]?.emailAddress ?? "User";
 
     return (
         <div className="bg-background flex min-h-dvh flex-col items-center px-4 py-12">
@@ -24,7 +24,7 @@ export default async function Page() {
                         <div className="flex items-center gap-3">
                             <Link
                                 href="/"
-                                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                                className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
                             >
                                 Start New Writing
                             </Link>
