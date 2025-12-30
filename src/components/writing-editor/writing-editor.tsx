@@ -70,7 +70,6 @@ export const WritingEditor = memo(function WritingEditor({
 
     useEffect(() => {
         if (editor && !isLocked) {
-            editor.commands.focus("start");
             queueMicrotask(() => {
                 const pos = editor.state.doc.content.size;
                 editor.commands.setTextSelection({ from: pos, to: pos });
