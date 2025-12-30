@@ -50,7 +50,7 @@ export default function RootLayout({
                 <ClerkProvider>
                     <ConvexClientProvider>
                         <NuqsAdapter>
-                            <div className="bg-background flex flex-1 flex-col">
+                            <div className="bg-background flex h-fit flex-col">
                                 {children}
                             </div>
                             <Toaster position="bottom-center" />

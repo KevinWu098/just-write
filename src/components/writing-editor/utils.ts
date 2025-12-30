@@ -53,5 +53,5 @@ export const scrollCursorIntoView = (
                 behavior: "auto",
             });
         }
-    }, 75); // Slightly longer than the 0.05s animation in `globals.css`
+    }, 20); // Slightly longer than the 0.05s animation in `globals.css`
 };

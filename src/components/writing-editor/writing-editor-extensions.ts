@@ -2,6 +2,8 @@ import Strike from "@tiptap/extension-strike";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
 
+import { BottomSpacer } from "@/components/writing-editor/bottom-spacer-plugin";
+
 export const writingEditorExtensions = [
     StarterKit.configure({
         heading: {
@@ -40,5 +42,10 @@ export const writingEditorExtensions = [
         closeSingleQuote: "'",
         leftArrow: "←",
         rightArrow: "→",
+    }),
+    BottomSpacer.configure({
+        lines: 12,
+        onlyIOS: true,
+        onlyWhenFocused: true,
     }),
 ];

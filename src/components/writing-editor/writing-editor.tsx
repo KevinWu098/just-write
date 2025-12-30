@@ -69,16 +69,6 @@ export const WritingEditor = memo(function WritingEditor({
     });
 
     useEffect(() => {
-        if (editor && !isIos && !isLocked) {
-            editor.commands.focus("start");
-            queueMicrotask(() => {
-                const pos = editor.state.doc.content.size;
-                editor.commands.setTextSelection({ from: pos, to: pos });
-            });
-        }
-    }, [editor, isIos, isLocked]);
-
-    useEffect(() => {
         if (editor) {
             editor.setEditable(!isLocked);
         }
@@ -104,7 +94,7 @@ export const WritingEditor = memo(function WritingEditor({
                         )}
                         onClick={(e) => {
                             if (!isLocked && e.target === e.currentTarget) {
-                                editor.commands.focus();
+                                editor.commands.focus("end");
                             }
                         }}
                     >
