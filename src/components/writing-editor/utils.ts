@@ -14,7 +14,7 @@ export const isCursorNearBottom = (editor: Editor): boolean => {
         const containerRect = container.getBoundingClientRect();
         const cursorRelativePosition = coords.top - containerRect.top;
 
-        const threshold = containerRect.height * 0.75;
+        const threshold = containerRect.height * (isIOS() ? 0.25 : 0.75);
 
         return cursorRelativePosition > threshold;
     }
@@ -53,5 +53,5 @@ export const scrollCursorIntoView = (
                 behavior: "auto",
             });
         }
-    }, 20); // Slightly longer than the 0.01s animation in `globals.css`
+    }, 75); // Slightly longer than the 0.05s animation in `globals.css`
 };

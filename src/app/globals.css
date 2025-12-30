@@ -88,6 +88,8 @@
     }
     html {
         @apply bg-background overscroll-y-none;
+        -webkit-overflow-scrolling: touch;
+        overflow: scroll;
     }
     body {
         @apply bg-background text-foreground;
@@ -187,5 +189,5 @@
 }
 
 .input--focused:focus-within {
-    animation: blink_input_opacity_to_prevent_scrolling_when_focus 0.01s;
+    animation: blink_input_opacity_to_prevent_scrolling_when_focus 0.05s;
 }
