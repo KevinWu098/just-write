@@ -5,20 +5,8 @@ import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { isIOS } from "@/lib/utils";
 
 export interface BottomSpacerOptions {
-    /**
-     * Number of lines of spacing to add at the bottom
-     * @default 10
-     */
     lines: number;
-    /**
-     * Whether to only show spacer on iOS
-     * @default false
-     */
     onlyIOS: boolean;
-    /**
-     * Whether to only show spacer when editor is focused
-     * @default false
-     */
     onlyWhenFocused: boolean;
 }
 
@@ -27,7 +15,7 @@ export const BottomSpacer = Extension.create<BottomSpacerOptions>({
 
     addOptions() {
         return {
-            lines: 10,
+            lines: 5,
             onlyIOS: false,
             onlyWhenFocused: false,
         };
@@ -52,7 +40,7 @@ export const BottomSpacer = Extension.create<BottomSpacerOptions>({
                         }
 
                         const spacer = document.createElement("div");
-                        spacer.style.height = `${options.lines * 1.625}em`;
+                        spacer.style.height = `${options.lines * 3.3125}em`;
                         spacer.style.pointerEvents = "auto";
                         spacer.style.opacity = "0";
                         spacer.style.cursor = "text";

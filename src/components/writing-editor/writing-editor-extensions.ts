@@ -44,7 +44,7 @@ export const writingEditorExtensions = [
         rightArrow: "→",
     }),
     BottomSpacer.configure({
-        lines: 12,
+        lines: 6,
         onlyIOS: true,
         onlyWhenFocused: true,
     }),
