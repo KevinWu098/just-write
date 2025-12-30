@@ -69,7 +69,7 @@ export const WritingEditor = memo(function WritingEditor({
     });
 
     useEffect(() => {
-        if (editor && !isIos && !isLocked) {
+        if (editor && !isLocked) {
             editor.commands.focus("start");
             queueMicrotask(() => {
                 const pos = editor.state.doc.content.size;
