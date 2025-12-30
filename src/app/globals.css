@@ -189,5 +189,5 @@
 }
 
 .input--focused:focus-within {
-    animation: blink_input_opacity_to_prevent_scrolling_when_focus 0.01s;
+    animation: blink_input_opacity_to_prevent_scrolling_when_focus 0.1s;
 }

@@ -48,6 +48,7 @@ export const BottomSpacer = Extension.create<BottomSpacerOptions>({
                         // Handle clicks on the spacer to focus at the end
                         spacer.addEventListener("mousedown", (e) => {
                             e.preventDefault();
+                            editor.view.dom.blur();
                             editor.commands.focus("end");
                         });
 
