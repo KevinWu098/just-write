@@ -9,6 +9,7 @@ export default defineSchema({
         updatedAt: v.number(), // Timestamp for last update
         shared: v.optional(v.boolean()), // Whether the writing is publicly shared
         sessionEnded: v.optional(v.boolean()), // For unlimited timers, whether session was manually ended
+        deletedAt: v.optional(v.number()), // Timestamp when soft deleted (undefined for active writings)
     }),
     users: defineTable({
         name: v.string(),

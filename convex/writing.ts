@@ -69,6 +69,11 @@ export const get = query({
             return null;
         }
 
+        // Exclude soft-deleted writings
+        if (writing.deletedAt !== undefined) {
+            return null;
+        }
+
         // Allow access if:
         // 1. User is the owner
         // 2. Document is shared (even if not authenticated)
@@ -95,7 +100,12 @@ export const list = query({
 
         const writings = await ctx.db
             .query("writings")
-            .filter((q) => q.eq(q.field("createdBy"), identity.subject))
+            .filter((q) =>
+                q.and(
+                    q.eq(q.field("createdBy"), identity.subject),
+                    q.eq(q.field("deletedAt"), undefined)
+                )
+            )
             .order("desc")
             .collect();
 
@@ -237,6 +247,11 @@ export const getShared = query({
             return null;
         }
 
+        // Exclude soft-deleted writings
+        if (writing.deletedAt !== undefined) {
+            return null;
+        }
+
         if (!writing.shared) {
             return null;
         }
@@ -266,6 +281,8 @@ export const deleteWriting = mutation({
             throw new Error("Not authorized");
         }
 
-        await ctx.db.delete(args.id);
+        await ctx.db.patch(args.id, {
+            deletedAt: Date.now(),
+        });
     },
 });

@@ -269,8 +269,8 @@ function WritingsListContent() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete writing?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete your writing.
+                            This will delete your writing and remove it from your
+                            list.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
