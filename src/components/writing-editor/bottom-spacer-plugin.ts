@@ -52,7 +52,7 @@ export const BottomSpacer = Extension.create<BottomSpacerOptions>({
                         }
 
                         const spacer = document.createElement("div");
-                        spacer.style.height = `${options.lines * 1.6255}em`;
+                        spacer.style.height = `${options.lines * 1.625}em`;
                         spacer.style.pointerEvents = "auto";
                         spacer.style.opacity = "0";
                         spacer.style.cursor = "text";

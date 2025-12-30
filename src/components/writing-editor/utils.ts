@@ -14,7 +14,7 @@ export const isCursorNearBottom = (editor: Editor): boolean => {
         const containerRect = container.getBoundingClientRect();
         const cursorRelativePosition = coords.top - containerRect.top;
 
-        const threshold = containerRect.height * (isIOS() ? 0.25 : 0.75);
+        const threshold = containerRect.height * (isIOS() ? 0.25 : 0.85);
 
         return cursorRelativePosition > threshold;
     }
@@ -46,7 +46,7 @@ export const scrollCursorIntoView = (
                 coords.top -
                 containerRect.top +
                 scrollTop -
-                containerRect.height * (isIOS() ? 0.33 : 0.85);
+                containerRect.height * (isIOS() ? 0.3 : 0.85);
 
             container.scrollTo({
                 top: targetScrollTop,
